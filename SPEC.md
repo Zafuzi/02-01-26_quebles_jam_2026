@@ -30,12 +30,12 @@
         </p>
         <p>For example: pick up the pillows from the kitchen and return them to the bed to then make the bed</p>
     </li>
+    <li>Linked Objects
+        <p>Make some objects placement unlock other objects, for example you must place the pillows on the bed before you can make the bed, which reveals the broom you have been looking for to sweep the floor</p>
+    </li>
     <li>
         Rotate Objects
         <p>Instead of objects being perfectly aligned, make the player rotate the object in 90deg increments to match the shape of the target</p>
-    </li>
-    <li>Linked Objects
-        <p>Make some objects placement unlock other objects, for example you must place the pillows on the bed before you can make the bed, which reveals the broom you have been looking for to sweep the floor</p>
     </li>
 </ol>
 
