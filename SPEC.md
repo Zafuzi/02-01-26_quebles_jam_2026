@@ -1,67 +1,43 @@
-<h1> 02-01-26 Quebles Jam 2026 </h1>
+# 02-01-26 Quebles Jam 2026
 
-<p>
-    <strong>Themes:</strong> 
-        <ol>
-            <li>Out of Place</li>
-            <li><em>Timing</em></li>
-        </ol>
-    </strong>
-</p>
+**Themes:**
+1. Out of Place
+2. *Timing*
 
-<h2>Core Game Loop</h2>
-<strong>Hunt for missing objects and return them to their proper places.</strong>
-<ol>
-    <li>Find an object</li>
-    <li>Pick it up</li>
-    <li>Find it's "home"</li>
-    <li>Return it</li>
-    <li>Solved counter goes up</li>
-    <li>Not all solved? <strong>REPEAT 1-5</strong></li>
-    <li> All solved?  <strong>WIN</strong> </li>
-</ol>
+## Core Game Loop
+**Hunt for missing objects and return them to their proper places.**
+1. Find an object
+2. Pick it up
+3. Find its "home"
+4. Return it
+5. Solved counter goes up
+6. Not all solved? **REPEAT 1-5**
+7. All solved? **WIN**
 
-<h2>Mechanics</h2>
-<ol>
-    <li>
-        Pick-Up / Return an object
-        <p>
-            Can only pick-up one at a time, Can drop an object anywhere, and objects must be place in correct spot to be "solved"
-        </p>
-        <p>For example: pick up the pillows from the kitchen and return them to the bed to then make the bed</p>
-    </li>
-    <li>Linked Objects
-        <p>Make some objects placement unlock other objects, for example you must place the pillows on the bed before you can make the bed, which reveals the broom you have been looking for to sweep the floor</p>
-    </li>
-    <li>
-        (STRETCH GOAL) Rotate Objects
-        <p>Instead of objects being perfectly aligned, make the player rotate the object in 90deg increments to match the shape of the target</p>
-    </li>
-</ol>
+## Mechanics
+1. Pick-Up / Return an object
+   - Can only pick up one at a time
+   - Can drop an object anywhere
+   - Objects must be placed in the correct spot to be "solved"
+   - Example: pick up the pillows from the kitchen and return them to the bed to then make the bed
+2. Linked Objects
+   - Some objects' placement unlocks other objects (e.g., place the pillows on the bed before you can make the bed, which reveals the broom you need to sweep the floor)
+3. (STRETCH GOAL) Rotate Objects
+   - Instead of perfect alignment, require rotating the object in 90-degree increments to match the target shape
 
-<h2>Assets</h2>
-<ul>
-    <li>
-        Images
-        <p>Images for the player, background, and objects will be needed</p>
-    </li>
-    <li>
-        Sounds
-        <p>Footsteps, pick-up/place, ambiance, correct/wrong, win</p>
-    </li>
-    <li>
-        Story
-        <p> Very basic, you are tasked with...</p>
-    </li>
-</ul>
+## Assets
+- Images
+  - Images for the player, background, and objects will be needed
+- Sounds
+  - Footsteps, pick-up/place, ambiance, correct/wrong, win
+- Story
+  - Very basic, you are tasked with...
 
-<h2>Schedule by Day</h2>
-<ol>
-    <li>Scope lock and core game loop</li>
-    <li>Mechanic 1</li>
-    <li>Mechanic 2</li>
-    <li>Mechanic 3</li>
-    <li>Graphics</li>
-    <li>Sound</li>
-    <li>Polish and Publish</li>
-</ol>
+## Schedule by Day
+1. Scope lock and core game loop
+2. Mechanic 1
+3. Mechanic 2
+4. Mechanic 3
+5. Graphics
+6. Sound
+7. Polish and Publish
