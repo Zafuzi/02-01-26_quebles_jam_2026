@@ -26,7 +26,7 @@
     <li>
         Pick-Up / Return an object
         <p>
-            Can only pick-up one at a time, Can drop an object anywhere, and bjects must be place in correct spot to be "solved"
+            Can only pick-up one at a time, Can drop an object anywhere, and objects must be place in correct spot to be "solved"
         </p>
         <p>For example: pick up the pillows from the kitchen and return them to the bed to then make the bed</p>
     </li>
