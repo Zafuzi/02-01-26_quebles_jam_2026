@@ -11,14 +11,34 @@
 
 <h2>Core Game Loop</h2>
 <summary>
-    Fill this in...
+    Hunt for missing objects and return them to their proper places.
 </summary>
+<ol>
+    <li>Find an object</li>
+    <li>Pick it up</li>
+    <li>Find it's "home"</li>
+    <li>Return it</li>
+    <li>Solved counter goes up</li>
+    <li>Not all solved? <strong>REPEAT 1-5</strong></li>
+    <li> All solved?  <strong>WIN</strong> </li>
+</ol>
 
 <h2>Mechanics</h2>
 <ul>
-    <li>Mechanic 1</li>
-    <li>Mechanic 2</li>
-    <li>Mechanic 3</li>
+    <li>
+        Pick-Up / Return an object
+        <p>
+            Can only pick-up one at a time, Can drop an object anywhere, and bjects must be place in correct spot to be "solved"
+        </p>
+        <p>For example: pick up the pillows from the kitchen and return them to the bed to then make the bed</p>
+    </li>
+    <li>
+        Rotate Objects
+        <p>Instead of objects being perfectly aligned, make the player rotate the object in 90deg increments to match the shape of the target</p>
+    </li>
+    <li>Linked Objects
+        <p>Make some objects placement unlock other objects, for example you must place the pillows on the bed before you can make the bed, which reveals the broom you have been looking for to sweep the floor</p>
+    </li>
 </ul>
 
 <h2>Assets</h2>
