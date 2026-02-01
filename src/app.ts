@@ -36,27 +36,10 @@ export let ViewportContainer: Viewport;
 		ticker: App.ticker,
 	});
 
-	ViewportContainer.clampZoom({
-		minScale: 0.35,
-		maxScale: 1,
-	})
-		.wheel({
-			smooth: 100,
-			interrupt: true,
-			reverse: false,
-			center: new Point(App.WORLD_WIDTH / 2, App.WORLD_HEIGHT / 2),
-			lineHeight: 0.1,
-			axis: "all",
-			trackpadPinch: true,
-			wheelZoom: true,
-		})
-		.pinch()
-		.decelerate();
-
 	// Initialize your game
 	App.stage.addChild(ViewportContainer);
 
-	App.ticker.add((ticker: Ticker) => {
+	App.ticker.add(() => {
 		App.tick++;
 	});
 
@@ -73,7 +56,7 @@ export let ViewportContainer: Viewport;
 
 			ViewportContainer.screenWidth = App.screen.width;
 			ViewportContainer.screenHeight = App.screen.height;
-			ViewportContainer.resize(App.screen.width, App.screen.height, WORLD_WIDTH, WORLD_HEIGHT);
+			ViewportContainer.resize(App.screen.width, App.screen.height, App.WORLD_WIDTH, App.WORLD_HEIGHT);
 		}, 300);
 	});
 })();
