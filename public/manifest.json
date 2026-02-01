@@ -1,0 +1,39 @@
+{
+	"bundles": [
+		{
+			"name": "game-essential",
+			"assets": [
+				{
+					"alias": "player",
+					"src": "player.png"
+				},
+				{
+					"alias": "thing",
+					"src": "thing.png"
+				},
+				{
+					"alias": "bg",
+					"src": "Caustic_Free.jpg"
+				},
+				{
+					"alias": "movement",
+					"src": "movement.ogg",
+					"sprites": {
+						"rotate": {
+							"start": 0,
+							"end": 2
+						}
+					}
+				},
+				{
+					"alias": "bubble",
+					"src": "bubble.wav"
+				},
+				{
+					"alias": "underwater",
+					"src": "underwater.ogg"
+				}
+			]
+		}
+	]
+}
