@@ -22,7 +22,7 @@
 </ol>
 
 <h2>Mechanics</h2>
-<ul>
+<ol>
     <li>
         Pick-Up / Return an object
         <p>
@@ -37,7 +37,7 @@
     <li>Linked Objects
         <p>Make some objects placement unlock other objects, for example you must place the pillows on the bed before you can make the bed, which reveals the broom you have been looking for to sweep the floor</p>
     </li>
-</ul>
+</ol>
 
 <h2>Assets</h2>
 <ul>
@@ -46,14 +46,13 @@
     <li>Story</li>
 </ul>
 
-<h2>Schedule</h2>
-<ul>
-    <li>Day 1 - Scope lock and core game loop</li>
-    <li>Day 2 - Mechanic 1</li>
-    <li>Day 2 - Mechanic 2</li>
-    <li>Day 3 - Mechanic 3</li>
-    <li>Day 4 - Graphics</li>
-    <li>Day 5 - Sound</li>
-    <li>Day 6 - Art and Polish</li>
-    <li>Day 7 - Polish and Publish</li>
-</ul>
+<h2>Schedule by Day</h2>
+<ol>
+    <li>Scope lock and core game loop</li>
+    <li>Mechanic 1</li>
+    <li>Mechanic 2</li>
+    <li>Mechanic 3</li>
+    <li>Graphics</li>
+    <li>Sound</li>
+    <li>Polish and Publish</li>
+</ol>
