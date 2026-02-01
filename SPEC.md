@@ -41,9 +41,18 @@
 
 <h2>Assets</h2>
 <ul>
-    <li>Images</li>
-    <li>Sounds</li>
-    <li>Story</li>
+    <li>
+        Images
+        <p>Images for the player, background, and objects will be needed</p>
+    </li>
+    <li>
+        Sounds
+        <p>Footsteps, pick-up/place, ambiance, correct/wrong, win</p>
+    </li>
+    <li>
+        Story
+        <p> Very basic, you are tasked with...</p>
+    </li>
 </ul>
 
 <h2>Schedule by Day</h2>
