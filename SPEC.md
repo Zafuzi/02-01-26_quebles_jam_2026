@@ -10,9 +10,7 @@
 </p>
 
 <h2>Core Game Loop</h2>
-<summary>
-    Hunt for missing objects and return them to their proper places.
-</summary>
+<strong>Hunt for missing objects and return them to their proper places.</strong>
 <ol>
     <li>Find an object</li>
     <li>Pick it up</li>
