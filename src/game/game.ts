@@ -1,10 +1,10 @@
 import { AdjustmentFilter, ColorOverlayFilter } from "pixi-filters";
-import { type Viewport } from "pixi-viewport";
 import { Assets, Color, Point } from "pixi.js";
-import { EntitySprite, NumberInRange } from "../engine/Engine.ts";
+import { App, EntitySprite, NumberInRange } from "../engine/Engine.ts";
 import { Player } from "./components/player.ts";
+import { Apple } from "./components/apple.ts";
 
-export default async function Game(viewport: Viewport) {
+export default async function Game() {
 	await Assets.init({ manifest: "./manifest.json" });
 	await Assets.loadBundle("game-essential");
 
@@ -15,6 +15,11 @@ export default async function Game(viewport: Viewport) {
 		brightness: 0.9,
 		contrast: 1.3,
 	});
+
+	const viewport = App.viewport;
+	if (!viewport) {
+		throw new Error("missing viewport");
+	}
 
 	// configure the viewport
 	viewport.setSize(window.innerWidth, window.innerHeight);
@@ -40,12 +45,13 @@ export default async function Game(viewport: Viewport) {
 					alpha: 0.1,
 				}),
 			];
-			// floor.tileSprite.anchor.set(0.5)
+
 			viewport.addChild(floor);
 		}
 	}
 
 	const player = new Player(viewport);
+	const apple = new Apple(player);
 
 	viewport.follow(player, {
 		speed: 1,
@@ -53,5 +59,5 @@ export default async function Game(viewport: Viewport) {
 		radius: 40,
 	});
 
-	viewport.addChild(player);
+	viewport.addChild(player, apple);
 }

@@ -27,23 +27,17 @@ export let ViewportContainer: Viewport;
 		canvas: document.querySelector("#game_canvas") as HTMLCanvasElement,
 	});
 
-	ViewportContainer = new Viewport({
+	App.viewport = new Viewport({
 		screenWidth: window.innerWidth,
 		screenHeight: window.innerHeight,
 		worldWidth: App.WORLD_WIDTH,
 		worldHeight: App.WORLD_HEIGHT,
-		events: App.renderer.events, // the interaction module is important for wheel to work properly when renderer.view is placed or scaled
+		events: App.renderer.events,
 		ticker: App.ticker,
 	});
 
-	// Initialize your game
-	App.stage.addChild(ViewportContainer);
-
-	App.ticker.add(() => {
-		App.tick++;
-	});
-
-	await Game(ViewportContainer);
+	App.stage.addChild(App.viewport);
+	App.ticker.add(() => { App.tick++; });
 
 	let resizeDebounce: number;
 	window.addEventListener("resize", () => {
@@ -54,9 +48,11 @@ export let ViewportContainer: Viewport;
 		resizeDebounce = setTimeout(() => {
 			App.renderer.resize(window.innerWidth, window.innerHeight);
 
-			ViewportContainer.screenWidth = App.screen.width;
-			ViewportContainer.screenHeight = App.screen.height;
-			ViewportContainer.resize(App.screen.width, App.screen.height, App.WORLD_WIDTH, App.WORLD_HEIGHT);
+			App.viewport!.screenWidth = App.screen.width;
+			App.viewport!.screenHeight = App.screen.height;
+			App.viewport!.resize(App.screen.width, App.screen.height, App.WORLD_WIDTH, App.WORLD_HEIGHT);
 		}, 300);
 	});
+
+	await Game();
 })();

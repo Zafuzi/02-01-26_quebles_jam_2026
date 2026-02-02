@@ -1,11 +1,11 @@
-import { Point, type PointData, type ObservablePoint } from "pixi.js";
+import { Point, type PointData, type ObservablePoint, type Size } from "pixi.js";
 
 // TODO: make rectangles work with entity rotation - maybe pass in
 // a rotation angle or somehow make the rectangle CollisionBody type include
 // a rotation?  Dunno.
 
 // Collision body type: null (no body), number (circular radius), or Point (rectangular size)
-export type CollisionBody = null | number | Point;
+export type CollisionBody = null | number | Size;
 
 // Interface for entities that can participate in collision detection
 export interface CollidableEntity {
@@ -37,11 +37,11 @@ function collide_rad_rad(entity1: CollidableEntity, entity2: CollidableEntity): 
 // entity1 is rectangle, entity2 is circle
 function collide_rect_rad(entity1: CollidableEntity, entity2: CollidableEntity): boolean {
 	const scale1 = entity1.scale;
-	const rectBody = entity1.body as Point;
+	const rectBody = entity1.body as Size;
 	const scale1X = typeof scale1 === "number" ? scale1 : scale1.x;
 	const scale1Y = typeof scale1 === "number" ? scale1 : scale1.y;
-	const halfWidth = rectBody.x * scale1X * 0.5;
-	const halfHeight = rectBody.y * scale1Y * 0.5;
+	const halfWidth = rectBody.width * scale1X * 0.5;
+	const halfHeight = rectBody.height * scale1Y * 0.5;
 	const circleRadius = (entity2.body as number) * getScale(entity2.scale);
 	const rectX = entity1.position.x;
 	const rectY = entity1.position.y;
@@ -60,16 +60,16 @@ function collide_rect_rect(entity1: CollidableEntity, entity2: CollidableEntity)
 	// scale up the hit rects
 	const position1 = entity1.position;
 	const position2 = entity2.position;
-	const rectBody1 = entity1.body as Point;
-	const rectBody2 = entity2.body as Point;
+	const rectBody1 = entity1.body as Size;
+	const rectBody2 = entity2.body as Size;
 	const scale1 = entity1.scale;
 	const scale2 = entity2.scale;
 	const scale1X = typeof scale1 === "number" ? scale1 : scale1.x;
 	const scale1Y = typeof scale1 === "number" ? scale1 : scale1.y;
 	const scale2X = typeof scale2 === "number" ? scale2 : scale2.x;
 	const scale2Y = typeof scale2 === "number" ? scale2 : scale2.y;
-	const scaledSize1 = new Point(rectBody1.x * scale1X, rectBody1.y * scale1Y);
-	const scaledSize2 = new Point(rectBody2.x * scale2X, rectBody2.y * scale2Y);
+	const scaledSize1 = new Point(rectBody1.width * scale1X, rectBody1.height * scale1Y);
+	const scaledSize2 = new Point(rectBody2.width * scale2X, rectBody2.height * scale2Y);
 
 	let deltaX = Math.abs(position1.x - position2.x);
 	let combinedHalfWidth = (scaledSize1.x + scaledSize2.x) * 0.5;

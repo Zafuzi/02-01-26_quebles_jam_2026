@@ -7,12 +7,14 @@ import {
 	HTMLText,
 	type HTMLTextStyleOptions,
 	Point,
+	Rectangle,
 	Sprite,
 	Ticker,
 	TilingSprite,
 } from "pixi.js";
 import { App } from "./Engine.ts";
-import { Direction, Magnitude } from "./Math.ts";
+import { Clamp, Direction, Magnitude } from "./Math.ts";
+import type { CollidableEntity } from "./Collision.ts";
 
 export type EntityOptions = ContainerOptions & {
 	alive?: boolean;
@@ -24,10 +26,16 @@ export type EntityOptions = ContainerOptions & {
 
 	rotation_velocity?: number;
 	rotation_friction?: number;
+
+	collider?: CollidableEntity;
+	collide?: boolean;
+	debug?: boolean;
 };
 
 export class Entity extends Container {
 	public alive: boolean = true;
+	public collide: boolean = false;
+	public debug: boolean = false;
 
 	public velocity: Point = new Point(0, 0);
 	public acceleration: Point = new Point(0, 0);
@@ -37,9 +45,14 @@ export class Entity extends Container {
 	public rotation_velocity: number = 0;
 	public rotation_friction: number = 1;
 
+	public collider: CollidableEntity;
+
 	public update: null | ((...args: any[]) => void) = null;
 
 	private tickerCallback?: (time: Ticker) => void;
+
+	public debugGraphic?: Graphics;
+	public boundTo: Rectangle = new Rectangle(0, 0, App.screen.width, App.screen.height);
 
 	constructor(options: EntityOptions) {
 		super({
@@ -47,9 +60,11 @@ export class Entity extends Container {
 			interactiveChildren: false,
 		});
 
-		const { alive, acceleration, friction, rotation_friction, rotation_velocity, speed } = options;
+		const { alive, acceleration, friction, rotation_friction, rotation_velocity, speed, collider, collide, debug } = options;
 
 		this.alive = alive ?? true;
+		this.collide = collide ?? false;
+		this.debug = debug ?? false;
 
 		this.acceleration = acceleration ?? new Point(0, 0);
 		this.friction = friction ?? new Point(1, 1);
@@ -59,9 +74,21 @@ export class Entity extends Container {
 
 		this.speed = speed ?? 1;
 
+		this.collider = collider ?? {
+			body: null,
+			position: this.position,
+			scale: this.scale,
+		}
+
 		this.tickerCallback = (time: Ticker) => {
 			if (this.alive && typeof this.update === "function") {
 				this.update(time);
+				if (this.collide) {
+					this.collider.body = this.getSize();
+					this.collider.position = this.position;
+					this.collider.scale = 1;
+				}
+				this.drawColliderDebug();
 			}
 		};
 
@@ -117,6 +144,54 @@ export class Entity extends Container {
 		const localVelY = worldVelocity.x * sin + worldVelocity.y * cos;
 
 		return new Point(localVelX, localVelY);
+	}
+
+	private drawColliderDebug(): void {
+		if (!this.debug) {
+			if (this.debugGraphic) this.debugGraphic.visible = false;
+			return;
+		}
+
+		if (!this.debugGraphic) {
+			this.debugGraphic = new Graphics();
+			this.debugGraphic.zIndex = Number.POSITIVE_INFINITY;
+			App.viewport.addChild(this.debugGraphic);
+		}
+
+		const body = this.collider?.body;
+		if (body === null || body === undefined) {
+			this.debugGraphic.visible = false;
+			return;
+		}
+
+		const gfx = this.debugGraphic;
+		this.debugGraphic.position = this.position;
+		gfx.visible = true;
+		gfx.clear();
+		gfx.setStrokeStyle({
+			width: 2,
+			color: 0xFF00FF,
+		})
+
+		if (typeof body === "number") {
+			const scale = typeof this.collider.scale === "number" ? this.collider.scale : this.collider.scale.x;
+			gfx.circle(0, 0, body * scale);
+			gfx.stroke();
+			return;
+		}
+
+		const scale = this.collider.scale;
+		const scaleX = typeof scale === "number" ? scale : scale.x;
+		const scaleY = typeof scale === "number" ? scale : scale.y;
+		const width = body.width * scaleX;
+		const height = body.height * scaleY;
+		gfx.rect(-width * 0.5, -height * 0.5, width, height);
+		gfx.stroke();
+	}
+
+	keepInBounds() {
+		this.x = Clamp(this.x, this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2);
+		this.y = Clamp(this.y, this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2);
 	}
 }
 
