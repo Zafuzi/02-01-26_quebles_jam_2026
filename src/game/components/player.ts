@@ -1,5 +1,5 @@
 import { Point, Rectangle, Ticker } from "pixi.js";
-import { App, Azimuth, Cartesian, Clamp, Direction, EntitySprite, InputMoveAction, Magnitude } from "../../engine/Engine.ts";
+import { App, Azimuth, Cartesian, Clamp, Direction, EntitySprite, InputMoveAction, Magnitude, normalize } from "../../engine/Engine.ts";
 import { type Viewport } from "pixi-viewport";
 
 export class Player extends EntitySprite {
@@ -9,14 +9,12 @@ export class Player extends EntitySprite {
 		super({
 			fileName: "player",
 			position: new Point(250, 250),
-			acceleration: new Point(0, 0),
-			friction: new Point(0.9, 0.9),
-			rotation_friction: 0.9,
 			scale: new Point(1, 1),
-			speed: 1.5,
+			speed: 10,
 		});
 
 		this.sprite.anchor.set(0.5);
+
 		this.boundTo.width = viewport.width / viewport.scale.x;
 		this.boundTo.height = viewport.height / viewport.scale.y;
 	}
@@ -24,11 +22,13 @@ export class Player extends EntitySprite {
 	update = (ticker: Ticker) => {
 		const [moveX, moveY] = InputMoveAction.value;
 
-		this.acceleration.set(moveX, -moveY)
+		const normal = new Point(moveX, moveY);
+		normalize(normal);
 
-		this.newtonian(ticker);
+		this.x += normal.x * this.speed * ticker.deltaTime;
+		this.y -= normal.y * this.speed * ticker.deltaTime;
 
-		this.x = Clamp(Math.round(this.x), this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2)
-		this.y = Clamp(Math.round(this.y), this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2)
+		this.x = Clamp(this.x, this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2)
+		this.y = Clamp(this.y, this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2)
 	};
 }

@@ -47,6 +47,13 @@ export const Magnitude = (x: number, y: number) => Math.sqrt(x * x + y * y);
 export const Direction = (y: number, x: number) => Math.atan2(y, x);
 export const Distance = (p1: Point, p2: Point) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
 
+export const normalize = (point: Point): void => {
+	const mag = Math.hypot(point.x, point.y);
+	if (mag === 0) return;
+	point.x /= mag;
+	point.y /= mag;
+};
+
 export const LocationAround = (position: Point, minDistance: number, maxDistance: number): Point => {
 	// get a random angle around the ring
 	const angle = Math.round(NumberInRange(0, 360)) * DEG_TO_RAD; // use radians, saves converting degrees to radians

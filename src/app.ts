@@ -12,16 +12,16 @@ export let ViewportContainer: Viewport;
 	await initDevtools({ app: App });
 
 	await App.init({
-		background: "#000",
-		roundPixels: true,
-		antialias: false,
+		roundPixels: false,
+		antialias: true,
 		useBackBuffer: false,
 		resolution: window.devicePixelRatio,
 		autoDensity: true,
 		resizeTo: window, // Automatically resize to fit window
 		width: App.WORLD_WIDTH,
 		height: App.WORLD_HEIGHT,
-		clearBeforeRender: false,
+		clearBeforeRender: true,
+		backgroundColor: "#94BBE9",
 		sharedTicker: true,
 		powerPreference: "high-performance",
 		canvas: document.querySelector("#game_canvas") as HTMLCanvasElement,

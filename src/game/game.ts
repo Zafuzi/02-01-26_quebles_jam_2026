@@ -10,13 +10,14 @@ export default async function Game(viewport: Viewport) {
 
 	// configure the viewport
 	viewport.setSize(window.innerWidth, window.innerHeight);
-	viewport.setZoom(0.8);
+	viewport.setZoom(1);
 
-	for (let i = 0; i < 3; i++) {
-		for (let j = 0; j < 3; j++) {
+	const gridSize = 2
+	for (let i = 0; i < gridSize; i++) {
+		for (let j = 0; j < gridSize; j++) {
 			const floor = new EntitySprite({
 				fileName: "floor",
-				position: new Point(Math.round(i * 510), Math.round(j * 510)),
+				position: new Point(Math.round(i * 500), Math.round(j * 500)),
 				isTiling: true,
 				tileWidth: 500,
 				tileHeight: 500,
@@ -39,6 +40,10 @@ export default async function Game(viewport: Viewport) {
 	}
 
 	const player = new Player(viewport);
-	viewport.follow(player);
+	viewport.follow(player, {
+		speed: 1,
+		acceleration: 0.1,
+		radius: 50
+	});
 	viewport.addChild(player);
 }
