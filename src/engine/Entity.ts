@@ -82,6 +82,7 @@ export class Entity extends Container {
 		};
 
 		this.tickerCallback = (time: Ticker) => {
+			this.renderable = this.alive;
 			if (this.alive && typeof this.update === "function") {
 				this.update(time);
 				if (this.collide) {

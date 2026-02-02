@@ -32,13 +32,27 @@
 				position: relative;
 			}
 
-			#game_canvas {
-				border: 10px solid rgba(255, 255, 255, 0.2);
+			#dbg {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				border-radius: 15px;
+				background-color: rgba(0, 0, 0, 0.5);
+				color: white;
+				padding: 9px;
+				max-height: calc(50vh - 20px);
+				max-width: calc(50vw - 20px);
+				overflow-y: scroll;
+				overflow-x: hidden;
+				backdrop-filter: blur(15px);
 			}
 		</style>
 	</head>
 
 	<body>
+		<div id="dbg">
+			<div id="dbg_state"></div>
+		</div>
 		<canvas id="game_canvas"></canvas>
 		<script
 			src="src/app.ts"

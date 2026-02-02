@@ -12,7 +12,7 @@ export class Player extends EntitySprite {
 			fileName: "bot_face_front",
 			position: new Point(250, 250),
 			scale: new Point(0.3, 0.3),
-			speed: 10,
+			speed: 5,
 			collide: true,
 			zIndex: 5,
 		})
@@ -45,7 +45,7 @@ export class Player extends EntitySprite {
 		}
 
 		if (this.inventory?.position) {
-			this.inventory.position = this.position.add(new Point(this.width, 0));
+			this.inventory.position = this.position.add(new Point(this.width / 2, 0));
 			this.inventory.keepInBounds();
 		}
 

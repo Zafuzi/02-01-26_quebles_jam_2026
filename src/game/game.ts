@@ -134,10 +134,12 @@ export default async function Game() {
 	App.ticker.add(() => {
 		pickups.forEach((p) => {
 			if (
-				player.inventory_lock_timeout == 0 &&
+				p.alive && p.collide &&
+				player.inventory_lock_timeout <= 0 &&
 				!player.inventory &&
 				collideEntities(player.collider, p.collider)
 			) {
+				console.debug("picked up", p.uid)
 				player.inventory = p;
 				return;
 			}
@@ -152,6 +154,15 @@ export default async function Game() {
 				window.location.reload();
 			}
 		}
+
+		dbg_state.innerHTML = `
+			<h2> State </h2>
+			<div>
+				<h3> Player </h3>
+				<p>PosX: ${Math.round(player.position.x)}, PosY: ${Math.round(player.position.y)}</p>
+				<p>Inventory: ${player.inventory?.constructor.name ?? ""}</p>
+			</div>
+		`
 	});
 
 	viewport.follow(player, {
