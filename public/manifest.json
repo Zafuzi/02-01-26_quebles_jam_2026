@@ -8,12 +8,48 @@
 					"src": "player.png"
 				},
 				{
-					"alias": "floor",
-					"src": "tweed.webp"
+					"alias": "floor_center",
+					"src": "floor_center.png"
+				},
+				{
+					"alias": "floor_top",
+					"src": "floor_top.png"
+				},
+				{
+					"alias": "floor_right",
+					"src": "floor_right.png"
+				},
+				{
+					"alias": "floor_bottom",
+					"src": "floor_bottom.png"
+				},
+				{
+					"alias": "floor_left",
+					"src": "floor_left.png"
+				},
+				{
+					"alias": "floor_corner_top_left",
+					"src": "floor_corner_top_left.png"
+				},
+				{
+					"alias": "floor_corner_top_right",
+					"src": "floor_corner_top_right.png"
+				},
+				{
+					"alias": "floor_corner_bottom_right",
+					"src": "floor_corner_bottom_right.png"
+				},
+				{
+					"alias": "floor_corner_bottom_left",
+					"src": "floor_corner_bottom_left.png"
 				},
 				{
 					"alias": "apple",
 					"src": "apple.png"
+				},
+				{
+					"alias": "apple_bin",
+					"src": "apple_bin.png"
 				}
 			]
 		}

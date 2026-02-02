@@ -37,7 +37,9 @@ export let ViewportContainer: Viewport;
 	});
 
 	App.stage.addChild(App.viewport);
-	App.ticker.add(() => { App.tick++; });
+	App.ticker.add(() => {
+		App.tick++;
+	});
 
 	let resizeDebounce: number;
 	window.addEventListener("resize", () => {

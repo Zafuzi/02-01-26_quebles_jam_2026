@@ -12,9 +12,9 @@ import {
 	Ticker,
 	TilingSprite,
 } from "pixi.js";
+import type { CollidableEntity } from "./Collision.ts";
 import { App } from "./Engine.ts";
 import { Clamp, Direction, Magnitude } from "./Math.ts";
-import type { CollidableEntity } from "./Collision.ts";
 
 export type EntityOptions = ContainerOptions & {
 	alive?: boolean;
@@ -60,7 +60,8 @@ export class Entity extends Container {
 			interactiveChildren: false,
 		});
 
-		const { alive, acceleration, friction, rotation_friction, rotation_velocity, speed, collider, collide, debug } = options;
+		const { alive, acceleration, friction, rotation_friction, rotation_velocity, speed, collider, collide, debug } =
+			options;
 
 		this.alive = alive ?? true;
 		this.collide = collide ?? false;
@@ -78,7 +79,7 @@ export class Entity extends Container {
 			body: null,
 			position: this.position,
 			scale: this.scale,
-		}
+		};
 
 		this.tickerCallback = (time: Ticker) => {
 			if (this.alive && typeof this.update === "function") {
@@ -108,6 +109,10 @@ export class Entity extends Container {
 			context: true,
 			textureSource: false, // keep this in case asset is used elsewhere
 		});
+
+		this.alive = false;
+		this.collide = false;
+		this.debug = false;
 	}
 
 	newtonian(ticker: Ticker) {
@@ -170,8 +175,8 @@ export class Entity extends Container {
 		gfx.clear();
 		gfx.setStrokeStyle({
 			width: 2,
-			color: 0xFF00FF,
-		})
+			color: 0xff00ff,
+		});
 
 		if (typeof body === "number") {
 			const scale = typeof this.collider.scale === "number" ? this.collider.scale : this.collider.scale.x;
@@ -195,7 +200,7 @@ export class Entity extends Container {
 	}
 }
 
-export type EntitySpriteOptions = {
+export type EntitySpriteOptions = EntityOptions & {
 	fileName: string;
 	isTiling?: boolean;
 	tileWidth?: number;
