@@ -48,12 +48,16 @@
 					"src": "floor_corner_bottom_left.png"
 				},
 				{
+					"alias": "grass",
+					"src": "grass.png"
+				},
+				{
 					"alias": "apple",
 					"src": "apple.png"
 				},
 				{
 					"alias": "apple_bin",
-					"src": "apple_bin.png"
+					"src": "sink.png"
 				}
 			]
 		}

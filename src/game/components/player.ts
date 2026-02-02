@@ -14,10 +14,10 @@ export class Player extends EntitySprite {
 			scale: new Point(0.3, 0.3),
 			speed: 5,
 			collide: true,
-			zIndex: 5,
 		})
 
 		this.sprite.anchor.set(0.5);
+		this.sprite.zIndex = 2;
 
 		this.boundTo.width = viewport.width / viewport.scale.x;
 		this.boundTo.height = viewport.height / viewport.scale.y;

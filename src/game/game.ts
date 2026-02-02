@@ -97,10 +97,10 @@ export default async function Game() {
 		}
 	}
 	const bg = new Background({
-		fileName: "floor_center",
+		fileName: "grass",
 		isTiling: true,
-		tileHeight: 42,
-		tileWidth: 42,
+		tileHeight: 32,
+		tileWidth: 32,
 		zIndex: 0,
 	});
 	bg.onViewportMoved(viewport);
@@ -113,8 +113,9 @@ export default async function Game() {
 
 	const bin = new Bin({
 		fileName: "apple_bin",
-		position: new Point(500, 500),
+		position: new Point(333, 590),
 	});
+	bin.sprite.zIndex = 6;
 	bin.sprite.anchor.set(0.5);
 
 	const pickups: Pickup[] = [];
@@ -145,6 +146,11 @@ export default async function Game() {
 			}
 		});
 
+		if (collideEntities(player.collider, bin.collider)) {
+			// todo get dir of collision
+			player.y = bin.y - bin.height / 2 - player.height / 2;
+		}
+
 		const picked_up = pickups.filter((p) => p.alive).length;
 		if (!isWon && picked_up === 0) {
 			isWon = true;
@@ -159,8 +165,9 @@ export default async function Game() {
 			<h2> State </h2>
 			<div>
 				<h3> Player </h3>
-				<p>PosX: ${Math.round(player.position.x)}, PosY: ${Math.round(player.position.y)}</p>
-				<p>Inventory: ${player.inventory?.constructor.name ?? ""}</p>
+				<p>fileName: ${player.fileName}</p>
+				<p>x: ${Math.round(player.position.x)}, y: ${Math.round(player.position.y)}</p>
+				<p>Inventory: [${player.inventory?.fileName ?? " "}]</p>
 			</div>
 		`
 	});
