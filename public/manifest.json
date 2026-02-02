@@ -4,8 +4,12 @@
 			"name": "game-essential",
 			"assets": [
 				{
-					"alias": "player",
-					"src": "player.png"
+					"alias": "bot_face_front",
+					"src": "bot_face_front.png"
+				},
+				{
+					"alias": "bot_face_back",
+					"src": "bot_face_back.png"
 				},
 				{
 					"alias": "floor_center",

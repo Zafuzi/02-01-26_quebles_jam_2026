@@ -1,4 +1,4 @@
-import { AdjustmentFilter, ColorOverlayFilter, DropShadowFilter } from "pixi-filters";
+import { AdjustmentFilter, ColorOverlayFilter, DropShadowFilter, GlowFilter } from "pixi-filters";
 import { Assets, Color, Point } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
 import { App, EntitySprite, NumberInRange } from "../engine/Engine.ts";
@@ -122,12 +122,11 @@ export default async function Game() {
 		pickups.push(new Pickup({
 			fileName: "apple",
 			position: new Point(
-				NumberInRange(0, viewport.width / viewport.scale.x),
-				NumberInRange(0, viewport.height / viewport.scale.y),
+				NumberInRange(20, viewport.width / viewport.scale.x - 20),
+				NumberInRange(20, viewport.height / viewport.scale.y - 20),
 			),
 			zIndex: 2,
 			dropTarget: bin,
-			filters: [new DropShadowFilter()]
 		}))
 	}
 

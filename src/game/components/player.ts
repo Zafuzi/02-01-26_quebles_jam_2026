@@ -1,5 +1,5 @@
 import { type Viewport } from "pixi-viewport";
-import { Point, Ticker } from "pixi.js";
+import { Assets, Point, Ticker } from "pixi.js";
 import { EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
 import type { Pickup } from "./pickup.ts";
 
@@ -9,13 +9,13 @@ export class Player extends EntitySprite {
 
 	constructor(viewport: Viewport) {
 		super({
-			fileName: "player",
+			fileName: "bot_face_front",
 			position: new Point(250, 250),
-			scale: new Point(1, 1),
+			scale: new Point(0.3, 0.3),
 			speed: 10,
 			collide: true,
 			zIndex: 5,
-		});
+		})
 
 		this.sprite.anchor.set(0.5);
 
@@ -47,6 +47,18 @@ export class Player extends EntitySprite {
 		if (this.inventory?.position) {
 			this.inventory.position = this.position.add(new Point(this.width, 0));
 			this.inventory.keepInBounds();
+		}
+
+		if (moveY > 0) {
+			if (this.fileName !== "bot_face_back") {
+				this.fileName = "bot_face_back"
+				this.sprite.texture = Assets.get(this.fileName)
+			}
+		} else {
+			if (this.fileName !== "bot_face_front") {
+				this.fileName = "bot_face_front"
+				this.sprite.texture = Assets.get(this.fileName)
+			}
 		}
 	};
 }
