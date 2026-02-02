@@ -104,7 +104,7 @@ export class Entity extends Container {
 
 		super.destroy({
 			children: true,
-			texture: true,
+			texture: false,
 			style: true,
 			context: true,
 			textureSource: false, // keep this in case asset is used elsewhere

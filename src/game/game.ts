@@ -1,4 +1,4 @@
-import { AdjustmentFilter, ColorOverlayFilter } from "pixi-filters";
+import { AdjustmentFilter, ColorOverlayFilter, DropShadowFilter } from "pixi-filters";
 import { Assets, Color, Point } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
 import { App, EntitySprite, NumberInRange } from "../engine/Engine.ts";
@@ -119,17 +119,16 @@ export default async function Game() {
 
 	const pickups: Pickup[] = [];
 	for (let i = 0; i < 5; i++) {
-		pickups.push(
-			new Pickup({
-				fileName: "apple",
-				position: new Point(
-					NumberInRange(0, viewport.width / viewport.scale.x),
-					NumberInRange(0, viewport.height / viewport.scale.y),
-				),
-				zIndex: 2,
-				dropTarget: bin,
-			}),
-		);
+		pickups.push(new Pickup({
+			fileName: "apple",
+			position: new Point(
+				NumberInRange(0, viewport.width / viewport.scale.x),
+				NumberInRange(0, viewport.height / viewport.scale.y),
+			),
+			zIndex: 2,
+			dropTarget: bin,
+			filters: [new DropShadowFilter()]
+		}))
 	}
 
 	let isWon = false;
