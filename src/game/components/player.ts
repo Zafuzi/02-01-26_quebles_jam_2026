@@ -1,6 +1,6 @@
-import { Point, Rectangle, Ticker } from "pixi.js";
-import { App, Azimuth, Cartesian, Clamp, Direction, EntitySprite, InputMoveAction, Magnitude, normalize } from "../../engine/Engine.ts";
 import { type Viewport } from "pixi-viewport";
+import { Point, Rectangle, Ticker } from "pixi.js";
+import { App, Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
 
 export class Player extends EntitySprite {
 	private boundTo: Rectangle = new Rectangle(0, 0, App.screen.width, App.screen.height);
@@ -17,6 +17,8 @@ export class Player extends EntitySprite {
 
 		this.boundTo.width = viewport.width / viewport.scale.x;
 		this.boundTo.height = viewport.height / viewport.scale.y;
+
+		this.filters = [];
 	}
 
 	update = (ticker: Ticker) => {
@@ -28,7 +30,7 @@ export class Player extends EntitySprite {
 		this.x += normal.x * this.speed * ticker.deltaTime;
 		this.y -= normal.y * this.speed * ticker.deltaTime;
 
-		this.x = Clamp(this.x, this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2)
-		this.y = Clamp(this.y, this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2)
+		this.x = Clamp(this.x, this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2);
+		this.y = Clamp(this.y, this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2);
 	};
 }
