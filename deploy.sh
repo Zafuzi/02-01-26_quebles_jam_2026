@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user_name=zafuzi
-game_title=tidepool
+game_title=out-of-place
 
 if [[ " $@ " =~ "-z " ]]; then
   echo "creating dist.zip"
