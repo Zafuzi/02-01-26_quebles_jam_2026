@@ -2,7 +2,8 @@ import { AdjustmentFilter, ColorOverlayFilter } from "pixi-filters";
 import { Assets, Color, Point } from "pixi.js";
 import { App, EntitySprite, NumberInRange } from "../engine/Engine.ts";
 import { Player } from "./components/player.ts";
-import { Apple } from "./components/apple.ts";
+import { collideEntities } from "../engine/Collision.ts";
+import { Pickup } from "./components/pickup.ts";
 
 export default async function Game() {
 	await Assets.init({ manifest: "./manifest.json" });
@@ -51,7 +52,22 @@ export default async function Game() {
 	}
 
 	const player = new Player(viewport);
-	const apple = new Apple(player);
+	const pickups: Pickup[] = [];
+	for (let i = 0; i < 10; i++) {
+		pickups.push(new Pickup({
+			fileName: "apple",
+			position: new Point(NumberInRange(0, viewport.width / viewport.scale.x), NumberInRange(0, viewport.height / viewport.scale.y))
+		}));
+	}
+
+	App.ticker.add(() => {
+		pickups.forEach(p => {
+			if (!player.inventory && collideEntities(player.collider, p.collider)) {
+				player.inventory = p;
+				return;
+			}
+		})
+	})
 
 	viewport.follow(player, {
 		speed: 1,
@@ -59,5 +75,5 @@ export default async function Game() {
 		radius: 40,
 	});
 
-	viewport.addChild(player, apple);
+	viewport.addChild(player, ...pickups);
 }
