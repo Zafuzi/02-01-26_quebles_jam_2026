@@ -20,6 +20,7 @@ export type EntityOptions = ContainerOptions & {
 	velocity?: Point;
 	acceleration?: Point;
 	friction?: Point;
+	speed?: number;
 
 	rotation_velocity?: number;
 	rotation_friction?: number;
@@ -31,6 +32,7 @@ export class Entity extends Container {
 	public velocity: Point = new Point(0, 0);
 	public acceleration: Point = new Point(0, 0);
 	public friction: Point = new Point(1, 1);
+	public speed: number = 1;
 
 	public rotation_velocity: number = 0;
 	public rotation_friction: number = 1;
@@ -45,7 +47,7 @@ export class Entity extends Container {
 			interactiveChildren: false,
 		});
 
-		const { alive, acceleration, friction, rotation_friction, rotation_velocity } = options;
+		const { alive, acceleration, friction, rotation_friction, rotation_velocity, speed } = options;
 
 		this.alive = alive ?? true;
 
@@ -54,6 +56,8 @@ export class Entity extends Container {
 
 		this.rotation_friction = rotation_friction ?? 1;
 		this.rotation_velocity = rotation_velocity ?? 0;
+
+		this.speed = speed ?? 1;
 
 		this.tickerCallback = (time: Ticker) => {
 			if (this.alive && typeof this.update === "function") {
@@ -82,8 +86,13 @@ export class Entity extends Container {
 	newtonian(ticker: Ticker) {
 		const deltaTime = ticker.deltaTime;
 
-		this.velocity.x += this.acceleration.x;
-		this.velocity.y += this.acceleration.y;
+		this.acceleration = this.acceleration.normalize().multiplyScalar(this.speed);
+
+		if (!Number.isNaN(this.acceleration.x)) {
+			this.velocity.add(this.acceleration, this.velocity);
+		}
+		// this.velocity.x += this.acceleration.x;
+		// this.velocity.y += this.acceleration.y;
 
 		const angle = Direction(this.velocity.y, this.velocity.x);
 		const speed = Math.max(0, Magnitude(this.velocity.x, this.velocity.y));
