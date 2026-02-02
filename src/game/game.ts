@@ -62,7 +62,7 @@ export default async function Game() {
 
 	App.ticker.add(() => {
 		pickups.forEach(p => {
-			if (!player.inventory && collideEntities(player.collider, p.collider)) {
+			if (player.inventory_lock_timeout == 0 && !player.inventory && collideEntities(player.collider, p.collider)) {
 				player.inventory = p;
 				return;
 			}

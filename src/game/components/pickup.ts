@@ -12,7 +12,6 @@ export class Pickup extends EntitySprite {
             friction: new Point(0.9, 0.9),
             scale: options?.scale ?? 0.15,
             collide: true,
-            debug: true,
         });
 
         this.sprite.anchor.set(0.5)

@@ -5,6 +5,7 @@ import type { Pickup } from "./pickup.ts";
 
 export class Player extends EntitySprite {
 	public inventory: Pickup | null = null;
+	public inventory_lock_timeout: number = 0;
 
 	constructor(viewport: Viewport) {
 		super({
@@ -13,7 +14,6 @@ export class Player extends EntitySprite {
 			scale: new Point(1, 1),
 			speed: 10,
 			collide: true,
-			debug: true,
 		});
 
 		this.sprite.anchor.set(0.5);
@@ -26,6 +26,7 @@ export class Player extends EntitySprite {
 		if (PlayerInteract.value) {
 			this.inventory?.drop();
 			this.inventory = null;
+			this.inventory_lock_timeout = 50;
 		}
 
 		this.keepInBounds();
@@ -38,8 +39,13 @@ export class Player extends EntitySprite {
 		this.x += normal.x * this.speed * ticker.deltaTime;
 		this.y -= normal.y * this.speed * ticker.deltaTime;
 
+
+		if (this.inventory_lock_timeout > 0) {
+			this.inventory_lock_timeout -= 1;
+		}
+
 		if (this.inventory) {
-			this.inventory.position = this.position.add(new Point(0, -this.height))
+			this.inventory.position = this.position.add(new Point(this.width, 0))
 			this.inventory.keepInBounds();
 		}
 	};
