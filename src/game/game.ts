@@ -1,14 +1,62 @@
 import { AdjustmentFilter } from "pixi-filters";
-import { Assets, Point } from "pixi.js";
+import { Assets, Point, type ApplicationOptions } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
-import { App, NumberInRange } from "../engine/Engine.ts";
+import { Engine, NumberInRange } from "../engine/Engine.ts";
 import { Bin } from "./components/bin.ts";
 import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
+import { initDevtools } from "@pixi/devtools";
+import { Viewport } from "pixi-viewport";
 
-export default async function Game() {
+const config: Partial<ApplicationOptions> = {
+	roundPixels: false,
+	antialias: true,
+	useBackBuffer: false,
+	resolution: window.devicePixelRatio,
+	autoDensity: true,
+	resizeTo: window, // Automatically resize to fit window
+	width: 800,
+	height: 600,
+	clearBeforeRender: true,
+	backgroundColor: "#1b8738",
+	sharedTicker: true,
+	powerPreference: "high-performance",
+	canvas: document.querySelector("#game_canvas") as HTMLCanvasElement,
+};
+
+export const LAYERS = {
+	bg: 0,
+	env: 1,
+	pickup: 2,
+	player: 2,
+};
+
+export const App = new Engine();
+
+(async () => {
+	console.debug("STARTING GAME");
+
+	await initDevtools({ app: App });
+	await App.init(config);
+	App.ticker.add(() => {
+		App.tick++;
+	});
+
+	console.debug("LOADING ASSETS...")
 	await Assets.init({ manifest: "./manifest.json" });
 	await Assets.loadBundle("game-essential");
+	console.debug("ASSETS LOADED")
+
+	App.viewport = new Viewport({
+		screenWidth: window.innerWidth,
+		screenHeight: window.innerHeight,
+		worldWidth: App.screen.width,
+		worldHeight: App.screen.height,
+		events: App.renderer.events,
+		ticker: App.ticker,
+	});
+
+	App.stage.addChild(App.viewport);
 
 	// Warm/cozy full-viewport grade
 	const worldColor = new AdjustmentFilter({
@@ -25,30 +73,34 @@ export default async function Game() {
 
 	// configure the viewport
 	viewport.sortableChildren = true;
-	viewport.setSize(window.innerWidth, window.innerHeight);
+	viewport.setSize(App.WORLD_WIDTH, App.WORLD_HEIGHT);
 	viewport.setZoom(1);
 
 	viewport.filters = [worldColor];
 
 	const player = new Player();
+	viewport.addChild(player)
 
 	const bin = new Bin({
 		fileName: "apple_bin",
 		position: new Point(500, 500),
+		anchor: 0.5,
+		zIndex: LAYERS.env,
 	});
-	bin.sprite.anchor.set(0.5);
+	viewport.addChild(bin);
 
 	const pickups: Pickup[] = [];
 	for (let i = 0; i < 5; i++) {
-		pickups.push(new Pickup({
+		const pickup = new Pickup({
 			fileName: "apple",
 			position: new Point(
 				NumberInRange(20, App.screen.width),
 				NumberInRange(20, App.screen.height),
 			),
-			zIndex: 2,
 			dropTarget: bin,
-		}))
+		})
+		pickups.push(pickup);
+		viewport.addChild(pickup);
 	}
 
 	let isWon = false;
@@ -60,8 +112,8 @@ export default async function Game() {
 				!player.inventory &&
 				collideEntities(player.collider, p.collider)
 			) {
-				console.debug("picked up", p.uid)
 				player.inventory = p;
+				console.debug("picked up", p.position)
 				return;
 			}
 		});
@@ -76,7 +128,7 @@ export default async function Game() {
 			}
 		}
 
-		dbg_state.innerHTML = `
+		(globalThis as any).dbg_state.innerHTML = `
 			<h2> State </h2>
 			<div>
 				<h3> Player </h3>
@@ -92,5 +144,18 @@ export default async function Game() {
 		radius: 40,
 	});
 
-	viewport.addChild(player, bin, ...pickups);
-}
+	let resizeDebounce: number;
+	window.addEventListener("resize", () => {
+		if (resizeDebounce) {
+			clearTimeout(resizeDebounce);
+		}
+
+		resizeDebounce = setTimeout(() => {
+			App.renderer.resize(window.innerWidth, window.innerHeight);
+
+			App.viewport!.screenWidth = App.screen.width;
+			App.viewport!.screenHeight = App.screen.height;
+			App.viewport!.resize(App.screen.width, App.screen.height, App.WORLD_WIDTH, App.WORLD_HEIGHT);
+		}, 300);
+	});
+})();

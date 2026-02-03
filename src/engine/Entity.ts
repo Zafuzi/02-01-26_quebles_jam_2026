@@ -7,14 +7,15 @@ import {
 	HTMLText,
 	type HTMLTextStyleOptions,
 	Point,
+	type PointData,
 	Rectangle,
 	Sprite,
 	Ticker,
 	TilingSprite,
 } from "pixi.js";
 import type { CollidableEntity } from "./Collision.ts";
-import { App } from "./Engine.ts";
-import { Clamp, Direction, Magnitude } from "./Math.ts";
+import { Clamp, Direction, Magnitude, normalize } from "./Math.ts";
+import { App } from "../game/game.ts";
 
 export type EntityOptions = ContainerOptions & {
 	alive?: boolean;
@@ -37,9 +38,9 @@ export class Entity extends Container {
 	public collide: boolean = false;
 	public debug: boolean = false;
 
-	public velocity: Point = new Point(0, 0);
-	public acceleration: Point = new Point(0, 0);
-	public friction: Point = new Point(1, 1);
+	public velocity: PointData = { x: 0, y: 0 };
+	public acceleration: PointData = { x: 0, y: 0 };
+	public friction: PointData = { x: 1, y: 1 };
 	public speed: number = 1;
 
 	public rotation_velocity: number = 0;
@@ -119,13 +120,14 @@ export class Entity extends Container {
 	newtonian(ticker: Ticker) {
 		const deltaTime = ticker.deltaTime;
 
-		this.acceleration = this.acceleration.normalize().multiplyScalar(this.speed);
+		normalize(this.acceleration);
+		this.acceleration.x *= this.speed;
+		this.acceleration.y *= this.speed;
 
-		if (!Number.isNaN(this.acceleration.x)) {
-			this.velocity.add(this.acceleration, this.velocity);
+		if (this.acceleration && !Number.isNaN(this.acceleration.x)) {
+			this.velocity.x += this.acceleration.x;
+			this.velocity.y += this.acceleration.y;
 		}
-		// this.velocity.x += this.acceleration.x;
-		// this.velocity.y += this.acceleration.y;
 
 		const angle = Direction(this.velocity.y, this.velocity.x);
 		const speed = Math.max(0, Magnitude(this.velocity.x, this.velocity.y));
@@ -206,6 +208,7 @@ export type EntitySpriteOptions = EntityOptions & {
 	isTiling?: boolean;
 	tileWidth?: number;
 	tileHeight?: number;
+	anchor?: number | Point;
 };
 
 export class EntitySprite extends Entity {
@@ -224,9 +227,11 @@ export class EntitySprite extends Entity {
 
 		if (this.isTiling) {
 			this.tileSprite.texture = Assets.get(this.fileName);
+			if (options.anchor) this.tileSprite.anchor = options.anchor;
 			this.addChild(this.tileSprite);
 		} else {
 			this.sprite.texture = Assets.get(this.fileName);
+			if (options.anchor) this.sprite.anchor = options.anchor;
 			this.addChild(this.sprite);
 		}
 	}

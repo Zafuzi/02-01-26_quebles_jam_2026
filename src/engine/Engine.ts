@@ -11,17 +11,7 @@ export class Engine extends Application {
 	constructor() {
 		super();
 	}
-
-	get WORLD_WIDTH(): number {
-		return window.innerWidth;
-	}
-
-	get WORLD_HEIGHT(): number {
-		return window.innerHeight;
-	}
 }
-
-export const App = new Engine();
 
 export * from "./Entity";
 export * from "./Input";

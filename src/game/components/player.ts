@@ -1,5 +1,6 @@
-import { Assets, Point, RAD_TO_DEG, Ticker } from "pixi.js";
-import { Direction, EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
+import { Assets, Point, Ticker } from "pixi.js";
+import { EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
+import { LAYERS } from "../game.ts";
 import type { Pickup } from "./pickup.ts";
 
 export class Player extends EntitySprite {
@@ -13,10 +14,9 @@ export class Player extends EntitySprite {
 			scale: new Point(0.3, 0.3),
 			speed: 5,
 			collide: true,
-			zIndex: 5,
+			anchor: 0.5,
+			zIndex: LAYERS.player,
 		})
-
-		this.sprite.anchor.set(0.5);
 	}
 
 	setMovementDirection = (xy: string) => {
@@ -55,17 +55,29 @@ export class Player extends EntitySprite {
 		const normal = { x: moveX, y: moveY } as Point;
 		normalize(normal);
 
-		this.setMovementDirection(`${moveX},${moveY}`);
+		const movementDirection = `${moveX},${moveY}`;
 
-		this.x += normal.x * this.speed * ticker.deltaTime;
-		this.y -= normal.y * this.speed * ticker.deltaTime;
+		this.setMovementDirection(movementDirection);
+
+		this.position.x += normal.x * this.speed * ticker.deltaTime;
+		this.position.y -= normal.y * this.speed * ticker.deltaTime;
 
 		if (this.inventory_lock_timeout > 0) {
 			this.inventory_lock_timeout -= 1;
 		}
 
-		if (this.inventory?.position) {
-			this.inventory.position = this.position.add(new Point(this.width / 2, 0));
+		if (this.inventory) {
+			switch (moveY) {
+				case 1:
+					this.inventory.zIndex = this.zIndex - 1;
+					break;
+				default:
+					this.inventory.zIndex = this.zIndex + 1;
+					break;
+			}
+
+			this.inventory.position.y = this.position.y + (moveY * -10);
+			this.inventory.position.x = this.position.x + (moveX * 10);
 		}
 	};
 }

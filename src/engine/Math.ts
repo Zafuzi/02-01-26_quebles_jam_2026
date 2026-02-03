@@ -47,7 +47,7 @@ export const Magnitude = (x: number, y: number) => Math.sqrt(x * x + y * y);
 export const Direction = (y: number, x: number) => Math.atan2(y, x);
 export const Distance = (p1: Point, p2: Point) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
 
-export const normalize = (point: Point): void => {
+export const normalize = (point: PointData): void => {
 	const mag = Math.hypot(point.x, point.y);
 	if (mag === 0) return;
 	point.x /= mag;
