@@ -72,7 +72,7 @@ export const App = new Engine();
 		fileName: "apple_bin",
 		position: new Point(400, 300),
 		anchor: 0.5,
-		scale: 0.1,
+		scale: 0.5,
 		zIndex: LAYERS.env,
 	});
 	App.viewport.addChild(bin);
