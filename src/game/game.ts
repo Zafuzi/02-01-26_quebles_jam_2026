@@ -160,7 +160,7 @@ export default async function Game() {
 			<div>
 				<h3> Player </h3>
 				<p>PosX: ${Math.round(player.position.x)}, PosY: ${Math.round(player.position.y)}</p>
-				<p>Inventory: ${player.inventory?.constructor.name ?? ""}</p>
+				<p>Inventory: [${player.inventory?.fileName ?? ""}]</p>
 			</div>
 		`
 	});
