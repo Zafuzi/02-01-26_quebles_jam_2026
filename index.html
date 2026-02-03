@@ -137,7 +137,9 @@
 	</head>
 
 	<body>
-		<div id="dbg">
+		<div
+			class="hid"
+			id="dbg">
 			<div
 				class="panel"
 				id="dbg_state"></div>
@@ -145,8 +147,8 @@
 		<div
 			class="panel"
 			id="msg">
-			<h2>Pick up all the apples!</h2>
-			<p>Place them in the bin to win...</p>
+			<h2>This farm is a mess</h2>
+			<p>Put things back in their place.</p>
 		</div>
 
 		<div
@@ -161,8 +163,20 @@
 
 				<span
 					class="red"
-					id="score_pickups"
-					>5</span
+					id="score_pickups_apples"
+					>0</span
+				>
+
+				<img
+					width="32"
+					height="32"
+					src="pickups/clucker.png"
+					alt="a clucker" />
+
+				<span
+					class="yellow"
+					id="score_pickups_cluckers"
+					>0</span
 				>
 			</h2>
 		</div>

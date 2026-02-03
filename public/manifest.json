@@ -70,14 +70,10 @@
 			]
 		},
 		{
-			"name": "game-essential",
+			"name": "environment",
 			"assets": [
 				{
-					"alias": "apple",
-					"src": "pickups/apple.png"
-				},
-				{
-					"alias": "apple_bin",
+					"alias": "barrel",
 					"src": "env/barrel.png"
 				},
 				{
@@ -91,6 +87,27 @@
 				{
 					"alias": "grass",
 					"src": "env/grass.png"
+				},
+				{
+					"alias": "hen_house",
+					"src": "env/hen_house.png"
+				}
+			]
+		},
+		{
+			"name": "pickups",
+			"assets": [
+				{
+					"alias": "apple",
+					"src": "pickups/apple.png"
+				},
+				{
+					"alias": "clucker",
+					"src": "pickups/clucker.png"
+				},
+				{
+					"alias": "egg",
+					"src": "pickups/egg.png"
 				}
 			]
 		}

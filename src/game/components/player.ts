@@ -13,7 +13,6 @@ export class Player extends EntitySprite {
 		super({
 			fileName: "b_s",
 			position: new Point(250, 250),
-			scale: 0.5,
 			speed: 5,
 			collide: true,
 			anchor: 0.5,

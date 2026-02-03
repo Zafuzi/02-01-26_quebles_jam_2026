@@ -12,8 +12,6 @@ export class Pickup extends EntitySprite {
 			...options,
 			fileName: options?.fileName ?? "apple",
 			position: options?.position ?? new Point(500, 500),
-			friction: new Point(0.9, 0.9),
-			scale: options?.scale ?? 0.15,
 			collide: true,
 			zIndex: LAYERS.pickup,
 			anchor: 0.5,

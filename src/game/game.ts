@@ -1,9 +1,9 @@
 import { initDevtools } from "@pixi/devtools";
 import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
-import { Assets, Point, type ApplicationOptions } from "pixi.js";
+import { Assets, Point, type ApplicationOptions, type PointData } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
-import { Game, NumberInRange } from "../engine/Engine.ts";
+import { Distance, Game, NumberInRange } from "../engine/Engine.ts";
 import { LAYERS } from "./GLOBALS.ts";
 import { Background } from "./components/background.ts";
 import { Bin } from "./components/bin.ts";
@@ -18,7 +18,7 @@ const config: Partial<ApplicationOptions> = {
 	autoDensity: true,
 	resizeTo: window, // Automatically resize to fit window
 	clearBeforeRender: true,
-	backgroundColor: "#1b8738",
+	backgroundColor: "#1a1a1a",
 	sharedTicker: true,
 	powerPreference: "high-performance",
 	canvas: document.querySelector("#game_canvas") as HTMLCanvasElement,
@@ -32,7 +32,8 @@ const config: Partial<ApplicationOptions> = {
 
 	console.debug("LOADING ASSETS...")
 	await Assets.init({ manifest: "./manifest.json" });
-	await Assets.loadBundle("game-essential");
+	await Assets.loadBundle("environment");
+	await Assets.loadBundle("pickups");
 	await Assets.loadBundle("bot");
 	console.debug("ASSETS LOADED")
 
@@ -55,10 +56,11 @@ const config: Partial<ApplicationOptions> = {
 		contrast: 1.3,
 	});
 	Game.viewport.filters = [worldColor];
+	Game.viewport.setZoom(0.5);
 
 	const background = new Background({
 		fileName: "grass",
-		tileScale: 1,
+		tileScale: 2,
 		width: Game.viewport.screenWidth,
 		height: Game.viewport.screenHeight,
 	})
@@ -73,17 +75,26 @@ const config: Partial<ApplicationOptions> = {
 	Game.viewport.addChild(player)
 
 	const bin = new Bin({
-		fileName: "apple_bin",
-		position: new Point(400, 300),
+		fileName: "barrel",
+		position: new Point(800, 0),
 		anchor: 0.5,
-		scale: 0.5,
 		zIndex: LAYERS.env,
 	});
+
+	const henHouse = new Bin({
+		fileName: "hen_house",
+		position: new Point(0, 0),
+		anchor: 0.5,
+		zIndex: LAYERS.env,
+	});
+	Game.viewport.addChild(henHouse);
 	Game.viewport.addChild(bin);
 
-	const pickups: Pickup[] = [];
+	const apples: Pickup[] = [];
+	const cluckers: Pickup[] = [];
+
 	for (let i = 0; i < 10; i++) {
-		const pickup = new Pickup({
+		const apple = new Pickup({
 			fileName: "apple",
 			position: new Point(
 				NumberInRange(-800, 800),
@@ -92,13 +103,38 @@ const config: Partial<ApplicationOptions> = {
 			dropTarget: bin,
 		});
 
-		pickups.push(pickup);
-		Game.viewport.addChild(pickup);
+		apples.push(apple);
+		Game.viewport.addChild(apple);
+
+		const clucker = new Pickup({
+			fileName: "clucker",
+			position: new Point(
+				NumberInRange(-800, 800),
+				NumberInRange(-600, 600),
+			),
+			dropTarget: henHouse,
+		});
+		let vel: PointData = { x: NumberInRange(-0.5, 0.5), y: NumberInRange(-0.5, 0.5) }
+		let start_pos: Point = new Point(clucker.position.x, clucker.position.y);
+		clucker.update = () => {
+			clucker.x += vel.x
+			clucker.y += vel.y
+
+			const d = Distance(clucker.position, start_pos);
+			if (d > 200) {
+				vel.x *= -1
+				vel.y *= -1
+			}
+		}
+
+		cluckers.push(clucker);
+		Game.viewport.addChild(clucker);
 	}
 
 	let isWon = false;
 	const msg = (globalThis as any).msg;
 
+	const pickups = [...apples, ...cluckers];
 	Game.ticker.add(() => {
 		pickups.forEach((p) => {
 			if (
@@ -114,7 +150,12 @@ const config: Partial<ApplicationOptions> = {
 		});
 
 		const picked_up = pickups.filter((p) => p.alive).length;
-		(globalThis as any).score_pickups.innerHTML = picked_up;
+
+		const apples_picked_up = apples.filter((p) => p.alive).length;
+		const cluckers_picked_up = cluckers.filter((p) => p.alive).length;
+
+		(globalThis as any).score_pickups_apples.innerHTML = apples_picked_up;
+		(globalThis as any).score_pickups_cluckers.innerHTML = cluckers_picked_up;
 
 		if (!isWon && picked_up === 0) {
 			isWon = true;

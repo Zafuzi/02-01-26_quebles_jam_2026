@@ -24,6 +24,9 @@ export class Background extends EntityTilingSprite {
 
 		this.tileSprite.tilePosition.x = -viewport.left;
 		this.tileSprite.tilePosition.y = -viewport.top;
+
+		this.tileSprite.width = viewport.screenWidth / viewport.scale.x;
+		this.tileSprite.height = viewport.screenHeight / viewport.scale.y;
 	};
 
 	resize = (options: Partial<EntityTilingSpriteOptions>) => {
