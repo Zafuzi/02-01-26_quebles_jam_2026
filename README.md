@@ -1,3 +1,5 @@
+![screenshot](readme_screenshot.png)
+
 # MyGame
 
 [Made with Tidepool](https://zafuzi.itch.io/tidepool)
