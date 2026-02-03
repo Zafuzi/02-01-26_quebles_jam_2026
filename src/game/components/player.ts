@@ -1,5 +1,5 @@
 import { Assets, Point, Ticker } from "pixi.js";
-import { EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
+import { Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
 import { LAYERS } from "../GLOBALS.ts";
 import type { Pickup } from "./pickup.ts";
 
@@ -66,6 +66,8 @@ export class Player extends EntitySprite {
 		const movementDirection = `${moveX},${moveY}`;
 
 		this.setMovementDirection(movementDirection);
+
+		this.rotation = Clamp(moveX, -0.1, 0.1);
 
 		this.position.x += normal.x * this.speed * ticker.deltaTime;
 		this.position.y -= normal.y * this.speed * ticker.deltaTime;
