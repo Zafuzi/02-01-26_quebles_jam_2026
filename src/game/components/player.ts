@@ -61,8 +61,9 @@ export class Player extends EntitySprite {
 		}
 
 		if (this.inventory) {
-			this.inventory.position.y = this.position.y - this.height / 2;
 			this.inventory.position.x = this.position.x;
+			this.inventory.position.y = this.position.y - this.height / 2 - this.inventory.height / 2;
+
 
 			if (this.inventory.checkIfInDropTarget()) {
 				this.inventory.drop();
