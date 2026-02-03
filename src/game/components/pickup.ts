@@ -41,7 +41,6 @@ export class Pickup extends EntitySprite {
 			this.debug = false;
 			this.collide = false;
 			this.destroy();
-			console.debug("Dropped", this.uid)
 		}
 	};
 }

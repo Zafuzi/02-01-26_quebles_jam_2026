@@ -143,6 +143,7 @@ const config: Partial<ApplicationOptions> = {
 				!player.inventory &&
 				collideEntities(player.collider, p.collider)
 			) {
+				player.inventory_lock_timeout = 50;
 				player.inventory = p;
 				msg.classList.add("hid");
 				return;

@@ -7,13 +7,12 @@ export class Player extends EntitySprite {
 	public inventory: Pickup | null = null;
 	public inventory_lock_timeout: number = 0;
 	public idle_timeout: number = 0;
-	public idle_animation_timer: number = 100;
 
 	constructor() {
 		super({
 			fileName: "b_s",
 			position: new Point(250, 250),
-			speed: 5,
+			speed: 8,
 			collide: true,
 			anchor: 0.5,
 			zIndex: LAYERS.player,
@@ -25,14 +24,7 @@ export class Player extends EntitySprite {
 			this.idle_timeout++;
 		}
 
-		let anim = (this.idle_timeout > this.idle_animation_timer) ? "01" : "00";
-
-		if (this.idle_timeout > this.idle_animation_timer * 2) {
-			this.idle_timeout = 0;
-		}
-
 		const holding = this.inventory ? "_hold" : "";
-
 		const facing: { [key: string]: string } = {
 			// idle
 			"0,0": "s",
@@ -80,7 +72,7 @@ export class Player extends EntitySprite {
 			this.inventory.position.y = this.position.y - this.height / 2 - this.inventory.height / 2;
 
 
-			if (this.inventory.checkIfInDropTarget()) {
+			if (this.inventory_lock_timeout <= 0 && this.inventory.checkIfInDropTarget()) {
 				this.inventory.drop();
 				this.inventory = null;
 				this.inventory_lock_timeout = 50;
