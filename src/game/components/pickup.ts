@@ -32,17 +32,12 @@ export class Pickup extends EntitySprite {
 	};
 
 	drop = () => {
-		this.velocity.y -= 10;
-		setTimeout(() => {
-			this.velocity.y += 10;
-		}, 100);
-
 		if (this.dropTarget && collideEntities(this.dropTarget.collider, this.collider)) {
 			this.alive = false;
 			this.debug = false;
 			this.collide = false;
-			this.destroy();
 			console.debug("Dropped", this.uid)
+			this.destroy();
 		}
 	};
 }
