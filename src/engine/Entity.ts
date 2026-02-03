@@ -16,6 +16,26 @@ import type { CollidableEntity } from "./Collision.ts";
 import { App } from "./Engine.ts";
 import { Clamp, Direction, Magnitude } from "./Math.ts";
 
+const getScaleValue = (scale: number | Point, axis: "x" | "y"): number => {
+	if (typeof scale === "number") return scale;
+	return axis === "x" ? scale.x : scale.y;
+};
+
+const getRectHalfExtents = (collider: CollidableEntity): { halfWidth: number; halfHeight: number } => {
+	const body = collider.body as { width: number; height: number };
+	const scaleX = getScaleValue(collider.scale, "x");
+	const scaleY = getScaleValue(collider.scale, "y");
+	return {
+		halfWidth: body.width * scaleX * 0.5,
+		halfHeight: body.height * scaleY * 0.5,
+	};
+};
+
+const getCircleRadius = (collider: CollidableEntity): number => {
+	const scale = getScaleValue(collider.scale, "x");
+	return (collider.body as number) * scale;
+};
+
 export type EntityOptions = ContainerOptions & {
 	alive?: boolean;
 
@@ -38,6 +58,7 @@ export class Entity extends Container {
 	public debug: boolean = false;
 
 	public velocity: Point = new Point(0, 0);
+	public previousPosition: Point = new Point(0, 0);
 	public acceleration: Point = new Point(0, 0);
 	public friction: Point = new Point(1, 1);
 	public speed: number = 1;
@@ -83,12 +104,17 @@ export class Entity extends Container {
 
 		this.tickerCallback = (time: Ticker) => {
 			this.renderable = this.alive;
-			if (this.alive && typeof this.update === "function") {
+			this.debug = App.DEBUG_COLLIDERS;
+			if (this.parent && this.alive && typeof this.update === "function") {
+				this.previousPosition.set(this.position.x, this.position.y);
 				this.update(time);
 				if (this.collide) {
-					this.collider.body = this.getSize();
+					if (!this.collider.body) {
+						this.collider.body = this.getSize();
+						this.collider.scale = 1;
+					}
+
 					this.collider.position = this.position;
-					this.collider.scale = 1;
 				}
 				this.drawColliderDebug();
 			}
@@ -98,6 +124,10 @@ export class Entity extends Container {
 	}
 
 	destroy(): void {
+		if (this.debugGraphic) {
+			this.debugGraphic.destroy();
+			this.debugGraphic = undefined;
+		}
 		if (this.tickerCallback) {
 			App.ticker.remove(this.tickerCallback);
 			this.tickerCallback = undefined;
@@ -153,6 +183,10 @@ export class Entity extends Container {
 	}
 
 	private drawColliderDebug(): void {
+		if (!this.alive) {
+			return;
+		}
+
 		if (!this.debug) {
 			if (this.debugGraphic) this.debugGraphic.visible = false;
 			return;
@@ -198,6 +232,182 @@ export class Entity extends Container {
 	keepInBounds() {
 		this.x = Clamp(this.x, this.boundTo.x + this.width / 2, this.boundTo.width - this.width / 2);
 		this.y = Clamp(this.y, this.boundTo.y + this.height / 2, this.boundTo.height - this.height / 2);
+	}
+
+	blockAgainst(solid: CollidableEntity): boolean {
+		const mover = this.collider;
+		if (!mover?.body || !solid?.body) return false;
+
+		if (typeof mover.body !== "number" && typeof solid.body !== "number") {
+			return this.blockRectRect(solid);
+		}
+
+		if (typeof mover.body === "number" && typeof solid.body === "number") {
+			return this.blockCircleCircle(solid);
+		}
+
+		if (typeof mover.body === "number") {
+			return this.blockCircleRect(solid);
+		}
+
+		return this.blockRectCircle(solid);
+	}
+
+	private blockRectRect(solid: CollidableEntity): boolean {
+		const mover = this.collider;
+		const moverExtents = getRectHalfExtents(mover);
+		const solidExtents = getRectHalfExtents(solid);
+
+		const dx = this.position.x - solid.position.x;
+		const dy = this.position.y - solid.position.y;
+		const overlapX = moverExtents.halfWidth + solidExtents.halfWidth - Math.abs(dx);
+		const overlapY = moverExtents.halfHeight + solidExtents.halfHeight - Math.abs(dy);
+
+		if (overlapX <= 0 || overlapY <= 0) return false;
+
+		const deltaX = this.position.x - this.previousPosition.x;
+		const deltaY = this.position.y - this.previousPosition.y;
+
+		let resolveX = overlapX < overlapY;
+		if (overlapX === overlapY) {
+			resolveX = Math.abs(deltaX) >= Math.abs(deltaY);
+		}
+
+		const prevDx = this.previousPosition.x - solid.position.x;
+		const prevDy = this.previousPosition.y - solid.position.y;
+		const signX = prevDx === 0 ? (deltaX >= 0 ? 1 : -1) : prevDx > 0 ? 1 : -1;
+		const signY = prevDy === 0 ? (deltaY >= 0 ? 1 : -1) : prevDy > 0 ? 1 : -1;
+
+		if (resolveX) {
+			this.position.x += overlapX * signX;
+			this.velocity.x = 0;
+		} else {
+			this.position.y += overlapY * signY;
+			this.velocity.y = 0;
+		}
+
+		mover.position = this.position;
+		this.keepInBounds();
+		return true;
+	}
+
+	private blockCircleCircle(solid: CollidableEntity): boolean {
+		const mover = this.collider;
+		const radiusA = getCircleRadius(mover);
+		const radiusB = getCircleRadius(solid);
+		const dx = this.position.x - solid.position.x;
+		const dy = this.position.y - solid.position.y;
+		const distSq = dx * dx + dy * dy;
+		const combined = radiusA + radiusB;
+		if (distSq >= combined * combined) return false;
+
+		const dist = Math.sqrt(distSq);
+		let nx = 1;
+		let ny = 0;
+		if (dist > 0) {
+			nx = dx / dist;
+			ny = dy / dist;
+		} else {
+			const deltaX = this.position.x - this.previousPosition.x;
+			const deltaY = this.position.y - this.previousPosition.y;
+			if (Math.abs(deltaX) > Math.abs(deltaY)) {
+				nx = Math.sign(deltaX) || 1;
+				ny = 0;
+			} else {
+				nx = 0;
+				ny = Math.sign(deltaY) || 1;
+			}
+		}
+
+		const depth = combined - dist;
+		this.position.x += nx * depth;
+		this.position.y += ny * depth;
+		this.velocity.set(0, 0);
+		mover.position = this.position;
+		this.keepInBounds();
+		return true;
+	}
+
+	private blockCircleRect(solid: CollidableEntity): boolean {
+		const mover = this.collider;
+		const radius = getCircleRadius(mover);
+		const { halfWidth, halfHeight } = getRectHalfExtents(solid);
+
+		const rectLeft = solid.position.x - halfWidth;
+		const rectRight = solid.position.x + halfWidth;
+		const rectTop = solid.position.y - halfHeight;
+		const rectBottom = solid.position.y + halfHeight;
+
+		const closestX = Clamp(this.position.x, rectLeft, rectRight);
+		const closestY = Clamp(this.position.y, rectTop, rectBottom);
+
+		const dx = this.position.x - closestX;
+		const dy = this.position.y - closestY;
+		const distSq = dx * dx + dy * dy;
+		if (distSq >= radius * radius) return false;
+
+		if (distSq > 0) {
+			const dist = Math.sqrt(distSq);
+			const depth = radius - dist;
+			this.position.x += (dx / dist) * depth;
+			this.position.y += (dy / dist) * depth;
+		} else {
+			const left = this.previousPosition.x - rectLeft;
+			const right = rectRight - this.previousPosition.x;
+			const top = this.previousPosition.y - rectTop;
+			const bottom = rectBottom - this.previousPosition.y;
+			const min = Math.min(left, right, top, bottom);
+			if (min === left) this.position.x = rectLeft - radius;
+			else if (min === right) this.position.x = rectRight + radius;
+			else if (min === top) this.position.y = rectTop - radius;
+			else this.position.y = rectBottom + radius;
+		}
+
+		this.velocity.set(0, 0);
+		mover.position = this.position;
+		this.keepInBounds();
+		return true;
+	}
+
+	private blockRectCircle(solid: CollidableEntity): boolean {
+		const mover = this.collider;
+		const radius = getCircleRadius(solid);
+		const { halfWidth, halfHeight } = getRectHalfExtents(mover);
+
+		const rectLeft = this.position.x - halfWidth;
+		const rectRight = this.position.x + halfWidth;
+		const rectTop = this.position.y - halfHeight;
+		const rectBottom = this.position.y + halfHeight;
+
+		const closestX = Clamp(solid.position.x, rectLeft, rectRight);
+		const closestY = Clamp(solid.position.y, rectTop, rectBottom);
+
+		const dx = solid.position.x - closestX;
+		const dy = solid.position.y - closestY;
+		const distSq = dx * dx + dy * dy;
+		if (distSq >= radius * radius) return false;
+
+		if (distSq > 0) {
+			const dist = Math.sqrt(distSq);
+			const depth = radius - dist;
+			this.position.x -= (dx / dist) * depth;
+			this.position.y -= (dy / dist) * depth;
+		} else {
+			const left = solid.position.x - rectLeft;
+			const right = rectRight - solid.position.x;
+			const top = solid.position.y - rectTop;
+			const bottom = rectBottom - solid.position.y;
+			const min = Math.min(left, right, top, bottom);
+			if (min === left) this.position.x = rectLeft - radius;
+			else if (min === right) this.position.x = rectRight + radius;
+			else if (min === top) this.position.y = rectTop - radius;
+			else this.position.y = rectBottom + radius;
+		}
+
+		this.velocity.set(0, 0);
+		mover.position = this.position;
+		this.keepInBounds();
+		return true;
 	}
 }
 

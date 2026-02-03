@@ -56,18 +56,50 @@
 				flex-flow: column;
 				gap: 2px;
 			}
+
+			#game_won {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-color: rgba(0, 0, 0, 0.5);
+				z-index: 99;
+				display: flex;
+				flex-flow: column;
+				align-items: center;
+				justify-content: center;
+				font-size: 3rem;
+				color: white;
+				backdrop-filter: blur(15px);
+				display: none;
+			}
+
+			button {
+				font-size: 18px;
+				font-weight: bold;
+				padding: 16px 25px;
+				background-color: #0074c7;
+				color: white;
+				border: 2px solid rgba(0, 0, 0, 0.5);
+				border-radius: 5px;
+			}
 		</style>
 	</head>
 
 	<body>
 		<div id="dbg">
-			<label
-				><input
+			<label>
+				<input
 					id="debug_colliders"
 					type="checkbox" />
-				Debug Colliders</label
-			>
+				Debug Colliders
+			</label>
 			<div id="dbg_state"></div>
+		</div>
+		<div id="game_won">
+			<h1>You won!</h1>
+			<button id="play_again">Play Again</button>
 		</div>
 		<canvas id="game_canvas"></canvas>
 		<script

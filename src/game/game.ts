@@ -1,11 +1,11 @@
-import { AdjustmentFilter, ColorOverlayFilter, DropShadowFilter, GlowFilter } from "pixi-filters";
-import { Assets, Color, Point } from "pixi.js";
-import { collideEntities } from "../engine/Collision.ts";
+import { AdjustmentFilter } from "pixi-filters";
+import { Assets, Point } from "pixi.js";
 import { App, EntitySprite, NumberInRange } from "../engine/Engine.ts";
 import Background from "./components/background.ts";
 import { Bin } from "./components/bin.ts";
 import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
+import { collideEntities } from "../engine/Collision.ts";
 
 export default async function Game() {
 	await Assets.init({ manifest: "./manifest.json" });
@@ -86,13 +86,6 @@ export default async function Game() {
 				rotation,
 			});
 
-			floor.tileSprite.filters = [
-				new ColorOverlayFilter({
-					color: new Color([NumberInRange(0, 1), NumberInRange(0, 1), NumberInRange(0, 1)]),
-					alpha: 0.1,
-				}),
-			];
-
 			viewport.addChild(floor);
 		}
 	}
@@ -119,39 +112,97 @@ export default async function Game() {
 	bin.sprite.anchor.set(0.5);
 
 	const pickups: Pickup[] = [];
+	const baseSpawnMargin = 10;
+	const maxSpawnAttempts = 30;
+	const worldWidth = viewport.width / viewport.scale.x;
+	const worldHeight = viewport.height / viewport.scale.y;
 	for (let i = 0; i < 5; i++) {
-		pickups.push(new Pickup({
+		const pickup = new Pickup({
 			fileName: "apple",
-			position: new Point(
-				NumberInRange(20, viewport.width / viewport.scale.x - 20),
-				NumberInRange(20, viewport.height / viewport.scale.y - 20),
-			),
+			position: new Point(0, 0),
 			zIndex: 2,
-			dropTarget: bin,
-		}))
+		});
+
+		if (!pickup.collider.body) {
+			pickup.collider.body = pickup.getSize();
+			pickup.collider.scale = pickup.scale;
+		}
+
+		let pickupExtent = 0;
+		if (typeof pickup.collider.body === "number") {
+			const scale = typeof pickup.collider.scale === "number" ? pickup.collider.scale : pickup.collider.scale.x;
+			pickupExtent = pickup.collider.body * scale;
+		} else {
+			const scaleX = typeof pickup.collider.scale === "number" ? pickup.collider.scale : pickup.collider.scale.x;
+			const scaleY = typeof pickup.collider.scale === "number" ? pickup.collider.scale : pickup.collider.scale.y;
+			pickupExtent = Math.max(pickup.collider.body.width * scaleX, pickup.collider.body.height * scaleY) * 0.5;
+		}
+		const spawnPadding = baseSpawnMargin + pickupExtent;
+
+		let placed = false;
+		for (let attempt = 0; attempt < maxSpawnAttempts; attempt++) {
+			pickup.position.set(
+				NumberInRange(spawnPadding, worldWidth - spawnPadding),
+				NumberInRange(spawnPadding, worldHeight - spawnPadding),
+			);
+			pickup.collider.position = pickup.position;
+
+			if (collideEntities(pickup.collider, player.collider)) continue;
+			if (collideEntities(pickup.collider, bin.collider)) continue;
+
+			let overlapsPickup = false;
+			for (let j = 0; j < pickups.length; j++) {
+				if (collideEntities(pickup.collider, pickups[j].collider)) {
+					overlapsPickup = true;
+					break;
+				}
+			}
+			if (overlapsPickup) continue;
+
+			placed = true;
+			break;
+		}
+
+		if (!placed) {
+			pickup.position.set(
+				NumberInRange(spawnPadding, worldWidth - spawnPadding),
+				NumberInRange(spawnPadding, worldHeight - spawnPadding),
+			);
+			pickup.collider.position = pickup.position;
+		}
+
+		pickups.push(pickup);
 	}
 
 	let isWon = false;
+	let dbgFrame = 0;
+	const dbgState = ebi<HTMLDivElement>("dbg_state");
+	const toggle_debug_collisions = ebi<HTMLDivElement>("debug_colliders");
+	toggle_debug_collisions.setAttribute("checked", App.DEBUG_COLLIDERS ? "checked" : "");
+	toggle_debug_collisions.addEventListener("change", (event: Event) => {
+		App.DEBUG_COLLIDERS = (event.currentTarget as HTMLInputElement).checked;
+		console.log("debug", App.DEBUG_COLLIDERS);
+	});
+	const dropZones = [bin];
 	App.ticker.add(() => {
-		pickups.forEach((p) => {
-			if (
-				p.alive && p.collide &&
-				player.inventory_lock_timeout <= 0 &&
-				!player.inventory &&
-				collideEntities(player.collider, p.collider)
-			) {
-				console.debug("picked up", p.uid)
-				player.inventory = p;
-				return;
-			}
-		});
+		player.handleTriggers(pickups, dropZones);
+		player.blockAgainst(bin.collider);
 
-		if (collideEntities(player.collider, bin.collider)) {
-			// todo get dir of collision
-			player.y = bin.y - bin.height / 2 - player.height / 2;
+		if (
+			player.inventory &&
+			player.inventory.alive &&
+			player.inventory.collide &&
+			player.triggerZone.contains(bin.collider)
+		) {
+			bin.glowFilter.alpha = 1;
+		} else {
+			bin.glowFilter.alpha = 0;
 		}
 
-		const picked_up = pickups.filter((p) => p.alive).length;
+		let picked_up = 0;
+		for (let i = 0; i < pickups.length; i++) {
+			if (pickups[i].alive) picked_up++;
+		}
 		if (!isWon && picked_up === 0) {
 			isWon = true;
 
@@ -161,15 +212,17 @@ export default async function Game() {
 			}
 		}
 
-		dbg_state.innerHTML = `
-			<h2> State </h2>
-			<div>
-				<h3> Player </h3>
-				<p>fileName: ${player.fileName}</p>
-				<p>x: ${Math.round(player.position.x)}, y: ${Math.round(player.position.y)}</p>
-				<p>Inventory: [${player.inventory?.fileName ?? " "}]</p>
-			</div>
-		`
+		if (dbgState && dbgFrame++ % 6 === 0) {
+			dbgState.innerHTML = `
+				<h2> State </h2>
+				<div>
+					<h3> Player </h3>
+					<p>fileName: ${player.fileName}</p>
+					<p>x: ${Math.round(player.position.x)}, y: ${Math.round(player.position.y)}</p>
+					<p>Inventory: [${player.inventory?.fileName ?? " "}]</p>
+				</div>
+			`;
+		}
 	});
 
 	viewport.follow(player, {
@@ -179,4 +232,8 @@ export default async function Game() {
 	});
 
 	viewport.addChild(bg, player, bin, ...pickups);
+}
+
+export function ebi<T>(id: string) {
+	return (globalThis as any)[id] as T;
 }

@@ -31,13 +31,17 @@ export class Pickup extends EntitySprite {
 		this.newtonian(ticker);
 	};
 
-	drop = () => {
-		if (this.dropTarget && collideEntities(this.dropTarget.collider, this.collider)) {
-			this.alive = false;
-			this.debug = false;
-			this.collide = false;
-			console.debug("Dropped", this.uid)
-			this.destroy();
+	drop = (accepted: boolean = true) => {
+		if (!accepted) return;
+		if (this.dropTarget) {
+			const canDrop = collideEntities(this.dropTarget.collider, this.collider);
+			if (!canDrop) return;
 		}
+
+		this.alive = false;
+		this.debug = false;
+		this.collide = false;
+		console.debug("Dropped", this.uid);
+		this.destroy();
 	};
 }

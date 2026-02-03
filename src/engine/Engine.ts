@@ -8,7 +8,7 @@ export class Engine extends Application {
 	//@ts-ignore
 	public viewport: Viewport;
 
-	public DEBUG_COLLIDERS = false;
+	public DEBUG_COLLIDERS = true;
 
 	constructor() {
 		super();

@@ -1,4 +1,4 @@
-import { Point, type PointData } from "pixi.js";
+import { ObservablePoint, Point, type PointData } from "pixi.js";
 import { type CollidableEntity, type CollisionBody, collideEntities } from "../../engine/Collision";
 import { Entity, type EntityOptions } from "../../engine/Engine";
 
@@ -16,7 +16,7 @@ export class TriggerZone extends Entity {
 	constructor(owner: Entity, options: TriggerZoneOptions = {}) {
 		super({
 			...options,
-			position: owner.position ?? new Point(0, 0)
+			position: owner.position ?? new Point(0, 0),
 		});
 
 		this.owner = owner;
@@ -35,6 +35,11 @@ export class TriggerZone extends Entity {
 	update = () => {
 		this.collider.position.x = this.owner.position.x + this.offset.x;
 		this.collider.position.y = this.owner.position.y + this.offset.y;
+	};
+
+	setBody(body: CollisionBody, scale?: number | ObservablePoint): void {
+		this.collider.body = body;
+		if (scale) this.collider.scale = scale;
 	}
 
 	contains(target: CollidableEntity): boolean {
