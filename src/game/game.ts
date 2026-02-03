@@ -58,7 +58,7 @@ const config: Partial<ApplicationOptions> = {
 
 	const background = new Background({
 		fileName: "grass",
-		tileScale: 5,
+		tileScale: 1,
 		width: Game.viewport.screenWidth,
 		height: Game.viewport.screenHeight,
 	})
@@ -82,12 +82,12 @@ const config: Partial<ApplicationOptions> = {
 	Game.viewport.addChild(bin);
 
 	const pickups: Pickup[] = [];
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < 10; i++) {
 		const pickup = new Pickup({
 			fileName: "apple",
 			position: new Point(
-				NumberInRange(0, 800),
-				NumberInRange(0, 600),
+				NumberInRange(-800, 800),
+				NumberInRange(-600, 600),
 			),
 			dropTarget: bin,
 		});
@@ -151,6 +151,10 @@ const config: Partial<ApplicationOptions> = {
 			Game.viewport.screenWidth = Game.screen.width;
 			Game.viewport.screenHeight = Game.screen.height;
 			Game.viewport.resize(Game.screen.width, Game.screen.height, Game.screen.width, Game.screen.height);
+			background.resize({
+				width: Game.screen.width,
+				height: Game.screen.height,
+			})
 		}, 300);
 	});
 })();
