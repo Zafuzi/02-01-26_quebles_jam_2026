@@ -45,12 +45,6 @@ export class Player extends EntitySprite {
 	}
 
 	update = (ticker: Ticker) => {
-		if (PlayerInteract.value) {
-			this.inventory?.drop();
-			this.inventory = null;
-			this.inventory_lock_timeout = 50;
-		}
-
 		const [moveX, moveY] = InputMoveAction.value;
 		const normal = { x: moveX, y: moveY } as Point;
 		normalize(normal);
@@ -78,6 +72,12 @@ export class Player extends EntitySprite {
 
 			this.inventory.position.y = this.position.y + (moveY * -10);
 			this.inventory.position.x = this.position.x + (moveX * 10);
+
+			if (this.inventory.checkIfInDropTarget()) {
+				this.inventory.drop();
+				this.inventory = null;
+				this.inventory_lock_timeout = 50;
+			}
 		}
 	};
 }

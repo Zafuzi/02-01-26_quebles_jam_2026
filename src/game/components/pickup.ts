@@ -28,6 +28,10 @@ export class Pickup extends EntitySprite {
 		this.newtonian(ticker);
 	};
 
+	checkIfInDropTarget = () => {
+		return this.dropTarget ? collideEntities(this.collider, this.dropTarget?.collider) : false;
+	}
+
 	drop = () => {
 		this.velocity.y -= 10;
 		setTimeout(() => {

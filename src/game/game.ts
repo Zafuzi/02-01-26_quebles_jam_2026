@@ -15,8 +15,6 @@ const config: Partial<ApplicationOptions> = {
 	resolution: window.devicePixelRatio,
 	autoDensity: true,
 	resizeTo: window, // Automatically resize to fit window
-	width: 800,
-	height: 600,
 	clearBeforeRender: true,
 	backgroundColor: "#1b8738",
 	sharedTicker: true,
@@ -65,45 +63,38 @@ export const App = new Engine();
 		brightness: 0.9,
 		contrast: 1.3,
 	});
-
-	const viewport = App.viewport;
-	if (!viewport) {
-		throw new Error("missing viewport");
-	}
-
-	// configure the viewport
-	viewport.sortableChildren = true;
-	viewport.setSize(App.WORLD_WIDTH, App.WORLD_HEIGHT);
-	viewport.setZoom(1);
-
-	viewport.filters = [worldColor];
+	App.viewport.filters = [worldColor];
 
 	const player = new Player();
-	viewport.addChild(player)
+	App.viewport.addChild(player)
 
 	const bin = new Bin({
 		fileName: "apple_bin",
-		position: new Point(500, 500),
+		position: new Point(400, 300),
 		anchor: 0.5,
+		scale: 0.1,
 		zIndex: LAYERS.env,
 	});
-	viewport.addChild(bin);
+	App.viewport.addChild(bin);
 
 	const pickups: Pickup[] = [];
 	for (let i = 0; i < 5; i++) {
 		const pickup = new Pickup({
 			fileName: "apple",
 			position: new Point(
-				NumberInRange(20, App.screen.width),
-				NumberInRange(20, App.screen.height),
+				NumberInRange(0, 800),
+				NumberInRange(0, 600),
 			),
 			dropTarget: bin,
-		})
+		});
+
 		pickups.push(pickup);
-		viewport.addChild(pickup);
+		App.viewport.addChild(pickup);
 	}
 
 	let isWon = false;
+	const msg = (globalThis as any).msg;
+
 	App.ticker.add(() => {
 		pickups.forEach((p) => {
 			if (
@@ -113,19 +104,19 @@ export const App = new Engine();
 				collideEntities(player.collider, p.collider)
 			) {
 				player.inventory = p;
-				console.debug("picked up", p.position)
+				msg.classList.add("hid");
 				return;
 			}
 		});
 
 		const picked_up = pickups.filter((p) => p.alive).length;
+		(globalThis as any).score_pickups.innerHTML = picked_up;
+
 		if (!isWon && picked_up === 0) {
 			isWon = true;
 
-			const playAgain = confirm("You Win! Play Again?");
-			if (playAgain) {
-				window.location.reload();
-			}
+			msg.classList.remove("hid");
+			msg.innerHTML = "<h1 class='blue'>You Win!</h1>";
 		}
 
 		(globalThis as any).dbg_state.innerHTML = `
@@ -138,7 +129,7 @@ export const App = new Engine();
 		`
 	});
 
-	viewport.follow(player, {
+	App.viewport.follow(player, {
 		speed: 0.8,
 		acceleration: 0.2,
 		radius: 40,
@@ -155,7 +146,7 @@ export const App = new Engine();
 
 			App.viewport!.screenWidth = App.screen.width;
 			App.viewport!.screenHeight = App.screen.height;
-			App.viewport!.resize(App.screen.width, App.screen.height, App.WORLD_WIDTH, App.WORLD_HEIGHT);
+			App.viewport!.resize(App.screen.width, App.screen.height, App.screen.width, App.screen.height);
 		}, 300);
 	});
 })();
