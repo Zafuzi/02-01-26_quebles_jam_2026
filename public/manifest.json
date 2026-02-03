@@ -1,48 +1,61 @@
 {
 	"bundles": [
 		{
-			"name": "game-essential",
+			"name": "bot",
 			"assets": [
 				{
-					"alias": "bot_face_front",
-					"src": "bot/bot_face_front.png"
+					"alias": "b_s_idle_00",
+					"src": "bot/bot_forward_idle_0.png"
 				},
 				{
-					"alias": "bot_face_back",
-					"src": "bot/bot_face_back.png"
+					"alias": "b_s_idle_01",
+					"src": "bot/bot_forward_idle_1.png"
 				},
 				{
-					"alias": "bot_face_back_left",
-					"src": "bot/bot_face_back_left.png"
+					"alias": "b_s_hold_idle_00",
+					"src": "bot/bot_forward_hold_idle_0.png"
 				},
 				{
-					"alias": "bot_face_back_right",
-					"src": "bot/bot_face_back_right.png"
+					"alias": "b_s_hold_idle_01",
+					"src": "bot/bot_forward_hold_idle_1.png"
 				},
 				{
-					"alias": "bot_face_front_left",
-					"src": "bot/bot_face_front_left.png"
+					"alias": "b_n_idle_00",
+					"src": "bot/bot_backward_idle_0.png"
 				},
 				{
-					"alias": "bot_face_front_right",
-					"src": "bot/bot_face_front_right.png"
+					"alias": "b_n_idle_01",
+					"src": "bot/bot_backward_idle_1.png"
 				},
 				{
-					"alias": "bot_face_front_down_left",
-					"src": "bot/bot_face_front_down_left.png"
+					"alias": "b_n_hold_idle_00",
+					"src": "bot/bot_backward_hold_idle_0.png"
 				},
 				{
-					"alias": "bot_face_front_down_right",
-					"src": "bot/bot_face_front_down_right.png"
+					"alias": "b_n_hold_idle_01",
+					"src": "bot/bot_backward_hold_idle_1.png"
 				},
 				{
-					"alias": "bot_face_back_up_left",
-					"src": "bot/bot_face_back_up_left.png"
+					"alias": "b_ne",
+					"src": "bot/bot_ne.png"
 				},
 				{
-					"alias": "bot_face_back_up_right",
-					"src": "bot/bot_face_back_up_right.png"
+					"alias": "b_nw",
+					"src": "bot/bot_nw.png"
 				},
+				{
+					"alias": "b_se",
+					"src": "bot/bot_se.png"
+				},
+				{
+					"alias": "b_sw",
+					"src": "bot/bot_sw.png"
+				}
+			]
+		},
+		{
+			"name": "game-essential",
+			"assets": [
 				{
 					"alias": "apple",
 					"src": "pickups/apple.png"

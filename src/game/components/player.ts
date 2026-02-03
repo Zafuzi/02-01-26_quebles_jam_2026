@@ -20,21 +20,22 @@ export class Player extends EntitySprite {
 	}
 
 	setMovementDirection = (xy: string) => {
+		const holding = this.inventory ? "_hold" : "";
 		const facing: { [key: string]: string } = {
 			// idle
-			"0,0": "bot_face_front",
+			"0,0": `b_s${holding}_idle_00`,
 
 			// cardinal
-			"0,1": "bot_face_back", // up
-			"0,-1": "bot_face_front", // down
-			"-1,0": "bot_face_front_left", // left
-			"1,0": "bot_face_front_right", // right
+			"0,1": `b_n${holding}_idle_00`, // up
+			"0,-1": `b_s${holding}_idle_00`, // down
+			"-1,0": `b_s${holding}_idle_00`, // left
+			"1,0": `b_s${holding}_idle_00`, // right
 
 			// diagonals
-			"-1,1": "bot_face_back_up_left", // up left
-			"1,1": "bot_face_back_up_right", // up right
-			"-1,-1": "bot_face_front_down_left", // down left
-			"1,-1": "bot_face_front_down_right", // down right
+			"-1,1": "b_nw", // up left
+			"1,1": "b_ne", // up right
+			"-1,-1": "b_nw", // down left
+			"1,-1": "b_ne", // down right
 		}
 
 		const fileName = facing[xy];

@@ -33,6 +33,7 @@ const config: Partial<ApplicationOptions> = {
 	console.debug("LOADING ASSETS...")
 	await Assets.init({ manifest: "./manifest.json" });
 	await Assets.loadBundle("game-essential");
+	await Assets.loadBundle("bot");
 	console.debug("ASSETS LOADED")
 
 	Game.viewport = new Viewport({
