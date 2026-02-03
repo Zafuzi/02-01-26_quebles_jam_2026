@@ -45,11 +45,23 @@
 				},
 				{
 					"alias": "apple",
-					"src": "apple.png"
+					"src": "pickups/apple.png"
 				},
 				{
 					"alias": "apple_bin",
-					"src": "barrel.png"
+					"src": "env/barrel.png"
+				},
+				{
+					"alias": "fence_horizontal",
+					"src": "env/fence_horizontal.png"
+				},
+				{
+					"alias": "fence_vertical",
+					"src": "env/fence_vertical.png"
+				},
+				{
+					"alias": "grass",
+					"src": "env/grass.png"
 				}
 			]
 		}

@@ -1,7 +1,7 @@
 import { Point, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
 import { Entity, EntitySprite, type EntitySpriteOptions } from "../../engine/Entity";
-import { LAYERS } from "../game";
+import { LAYERS } from "../GLOBALS";
 
 export class Pickup extends EntitySprite {
 	public isBeingHeld: boolean = false;

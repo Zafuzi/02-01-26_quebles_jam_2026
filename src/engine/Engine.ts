@@ -16,3 +16,5 @@ export class Engine extends Application {
 export * from "./Entity";
 export * from "./Input";
 export * from "./Math";
+
+export const Game = new Engine();

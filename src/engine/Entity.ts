@@ -15,7 +15,7 @@ import {
 } from "pixi.js";
 import type { CollidableEntity } from "./Collision.ts";
 import { Clamp, Direction, Magnitude, normalize } from "./Math.ts";
-import { App } from "../game/game.ts";
+import { Game } from "./Engine.ts";
 
 export type EntityOptions = ContainerOptions & {
 	alive?: boolean;
@@ -53,7 +53,7 @@ export class Entity extends Container {
 	private tickerCallback?: (time: Ticker) => void;
 
 	public debugGraphic?: Graphics;
-	public boundTo: Rectangle = new Rectangle(0, 0, App.screen.width, App.screen.height);
+	public boundTo: Rectangle = new Rectangle(0, 0, 0, 0);
 
 	constructor(options: EntityOptions) {
 		super({
@@ -95,12 +95,12 @@ export class Entity extends Container {
 			}
 		};
 
-		App.ticker.add(this.tickerCallback);
+		Game.ticker.add(this.tickerCallback);
 	}
 
 	destroy(): void {
 		if (this.tickerCallback) {
-			App.ticker.remove(this.tickerCallback);
+			Game.ticker.remove(this.tickerCallback);
 			this.tickerCallback = undefined;
 		}
 
@@ -163,7 +163,7 @@ export class Entity extends Container {
 		if (!this.debugGraphic) {
 			this.debugGraphic = new Graphics();
 			this.debugGraphic.zIndex = Number.POSITIVE_INFINITY;
-			App.viewport.addChild(this.debugGraphic);
+			Game.viewport.addChild(this.debugGraphic);
 		}
 
 		const body = this.collider?.body;
@@ -213,27 +213,35 @@ export type EntitySpriteOptions = EntityOptions & {
 
 export class EntitySprite extends Entity {
 	public sprite: Sprite = new Sprite();
-	public tileSprite: TilingSprite = new TilingSprite();
-	public isTiling = false;
 	public fileName: string;
 
 	constructor(options: EntityOptions & EntitySpriteOptions) {
 		super(options);
 
 		this.fileName = options.fileName;
-		this.isTiling = options.isTiling ?? false;
+
+		this.sprite.texture = Assets.get(this.fileName);
+		if (options.anchor) this.sprite.anchor = options.anchor;
+		this.addChild(this.sprite);
+	}
+}
+
+export class EntityTilingSprite extends Entity {
+	public sprite: Sprite = new Sprite();
+	public tileSprite: TilingSprite = new TilingSprite();
+	public fileName: string;
+
+	constructor(options: EntityOptions & EntitySpriteOptions) {
+		super(options);
+
+		this.fileName = options.fileName;
+
+		this.tileSprite.texture = Assets.get(this.fileName);
 		this.tileSprite.width = options.tileWidth || 0;
 		this.tileSprite.height = options.tileHeight || 0;
 
-		if (this.isTiling) {
-			this.tileSprite.texture = Assets.get(this.fileName);
-			if (options.anchor) this.tileSprite.anchor = options.anchor;
-			this.addChild(this.tileSprite);
-		} else {
-			this.sprite.texture = Assets.get(this.fileName);
-			if (options.anchor) this.sprite.anchor = options.anchor;
-			this.addChild(this.sprite);
-		}
+		if (options.anchor) this.tileSprite.anchor = options.anchor;
+		this.addChild(this.tileSprite);
 	}
 }
 
