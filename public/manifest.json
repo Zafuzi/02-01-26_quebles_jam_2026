@@ -4,52 +4,68 @@
 			"name": "bot",
 			"assets": [
 				{
-					"alias": "b_s_idle_00",
-					"src": "bot/bot_forward_idle_0.png"
+					"alias": "b_s",
+					"src": "bot/bot_s.png"
 				},
 				{
-					"alias": "b_s_idle_01",
-					"src": "bot/bot_forward_idle_1.png"
+					"alias": "b_s_hold",
+					"src": "bot/bot_s_hold.png"
 				},
 				{
-					"alias": "b_s_hold_idle_00",
-					"src": "bot/bot_forward_hold_idle_0.png"
+					"alias": "b_n",
+					"src": "bot/bot_n.png"
 				},
 				{
-					"alias": "b_s_hold_idle_01",
-					"src": "bot/bot_forward_hold_idle_1.png"
+					"alias": "b_n_hold",
+					"src": "bot/bot_n_hold.png"
 				},
 				{
-					"alias": "b_n_idle_00",
-					"src": "bot/bot_backward_idle_0.png"
+					"alias": "b_e",
+					"src": "bot/bot_e.png"
 				},
 				{
-					"alias": "b_n_idle_01",
-					"src": "bot/bot_backward_idle_1.png"
+					"alias": "b_e_hold",
+					"src": "bot/bot_e_hold.png"
 				},
 				{
-					"alias": "b_n_hold_idle_00",
-					"src": "bot/bot_backward_hold_idle_0.png"
+					"alias": "b_w",
+					"src": "bot/bot_w.png"
 				},
 				{
-					"alias": "b_n_hold_idle_01",
-					"src": "bot/bot_backward_hold_idle_1.png"
+					"alias": "b_w_hold",
+					"src": "bot/bot_w_hold.png"
 				},
 				{
 					"alias": "b_ne",
 					"src": "bot/bot_ne.png"
 				},
 				{
+					"alias": "b_ne_hold",
+					"src": "bot/bot_ne_hold.png"
+				},
+				{
 					"alias": "b_nw",
 					"src": "bot/bot_nw.png"
+				},
+				{
+					"alias": "b_nw_hold",
+					"src": "bot/bot_nw_hold.png"
 				},
 				{
 					"alias": "b_se",
 					"src": "bot/bot_se.png"
 				},
 				{
+					"alias": "b_se_hold",
+					"src": "bot/bot_se_hold.png"
+				},
+				{
 					"alias": "b_sw",
 					"src": "bot/bot_sw.png"
+				},
+				{
+					"alias": "b_sw_hold",
+					"src": "bot/bot_sw_hold.png"
 				}
 			]
 		},

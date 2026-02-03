@@ -6,10 +6,12 @@ import type { Pickup } from "./pickup.ts";
 export class Player extends EntitySprite {
 	public inventory: Pickup | null = null;
 	public inventory_lock_timeout: number = 0;
+	public idle_timeout: number = 0;
+	public idle_animation_timer: number = 100;
 
 	constructor() {
 		super({
-			fileName: "bot_face_front",
+			fileName: "b_s",
 			position: new Point(250, 250),
 			scale: 0.5,
 			speed: 5,
@@ -20,25 +22,36 @@ export class Player extends EntitySprite {
 	}
 
 	setMovementDirection = (xy: string) => {
-		const holding = this.inventory ? "_hold" : "";
-		const facing: { [key: string]: string } = {
-			// idle
-			"0,0": `b_s${holding}_idle_00`,
-
-			// cardinal
-			"0,1": `b_n${holding}_idle_00`, // up
-			"0,-1": `b_s${holding}_idle_00`, // down
-			"-1,0": `b_s${holding}_idle_00`, // left
-			"1,0": `b_s${holding}_idle_00`, // right
-
-			// diagonals
-			"-1,1": "b_nw", // up left
-			"1,1": "b_ne", // up right
-			"-1,-1": "b_nw", // down left
-			"1,-1": "b_ne", // down right
+		if (xy == "0,0") {
+			this.idle_timeout++;
 		}
 
-		const fileName = facing[xy];
+		let anim = (this.idle_timeout > this.idle_animation_timer) ? "01" : "00";
+
+		if (this.idle_timeout > this.idle_animation_timer * 2) {
+			this.idle_timeout = 0;
+		}
+
+		const holding = this.inventory ? "_hold" : "";
+
+		const facing: { [key: string]: string } = {
+			// idle
+			"0,0": "s",
+
+			// cardinal
+			"0,1": "n", // up
+			"0,-1": "s", // down
+			"-1,0": "w", // left
+			"1,0": "e", // right
+
+			// diagonals
+			"-1,1": "nw", // up left
+			"1,1": "ne", // up right
+			"-1,-1": "sw", // down left
+			"1,-1": "se", // down right
+		}
+
+		const fileName = `b_${facing[xy]}${holding}`;
 		if (this.fileName !== fileName) {
 			this.fileName = fileName;
 			this.sprite.texture = Assets.get(fileName);
