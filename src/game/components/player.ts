@@ -11,7 +11,7 @@ export class Player extends EntitySprite {
 		super({
 			fileName: "bot_face_front",
 			position: new Point(250, 250),
-			scale: new Point(0.3, 0.3),
+			scale: 0.5,
 			speed: 5,
 			collide: true,
 			anchor: 0.5,
@@ -61,17 +61,8 @@ export class Player extends EntitySprite {
 		}
 
 		if (this.inventory) {
-			switch (moveY) {
-				case 1:
-					this.inventory.zIndex = this.zIndex - 1;
-					break;
-				default:
-					this.inventory.zIndex = this.zIndex + 1;
-					break;
-			}
-
-			this.inventory.position.y = this.position.y + (moveY * -10);
-			this.inventory.position.x = this.position.x + (moveX * 10);
+			this.inventory.position.y = this.position.y - this.height / 2;
+			this.inventory.position.x = this.position.x;
 
 			if (this.inventory.checkIfInDropTarget()) {
 				this.inventory.drop();

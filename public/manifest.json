@@ -45,11 +45,11 @@
 				},
 				{
 					"alias": "apple",
-					"src": "apple.png"
+					"src": "pickups/apple.png"
 				},
 				{
 					"alias": "apple_bin",
-					"src": "barrel.png"
+					"src": "env/barrel.png"
 				}
 			]
 		}
