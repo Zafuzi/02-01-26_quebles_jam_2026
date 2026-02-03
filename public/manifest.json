@@ -5,47 +5,43 @@
 			"assets": [
 				{
 					"alias": "bot_face_front",
-					"src": "bot_face_front.png"
+					"src": "bot/bot_face_front.png"
 				},
 				{
 					"alias": "bot_face_back",
-					"src": "bot_face_back.png"
+					"src": "bot/bot_face_back.png"
 				},
 				{
-					"alias": "floor_center",
-					"src": "floor_center.png"
+					"alias": "bot_face_back_left",
+					"src": "bot/bot_face_back_left.png"
 				},
 				{
-					"alias": "floor_top",
-					"src": "floor_top.png"
+					"alias": "bot_face_back_right",
+					"src": "bot/bot_face_back_right.png"
 				},
 				{
-					"alias": "floor_right",
-					"src": "floor_right.png"
+					"alias": "bot_face_front_left",
+					"src": "bot/bot_face_front_left.png"
 				},
 				{
-					"alias": "floor_bottom",
-					"src": "floor_bottom.png"
+					"alias": "bot_face_front_right",
+					"src": "bot/bot_face_front_right.png"
 				},
 				{
-					"alias": "floor_left",
-					"src": "floor_left.png"
+					"alias": "bot_face_front_down_left",
+					"src": "bot/bot_face_front_down_left.png"
 				},
 				{
-					"alias": "floor_corner_top_left",
-					"src": "floor_corner_top_left.png"
+					"alias": "bot_face_front_down_right",
+					"src": "bot/bot_face_front_down_right.png"
 				},
 				{
-					"alias": "floor_corner_top_right",
-					"src": "floor_corner_top_right.png"
+					"alias": "bot_face_back_up_left",
+					"src": "bot/bot_face_back_up_left.png"
 				},
 				{
-					"alias": "floor_corner_bottom_right",
-					"src": "floor_corner_bottom_right.png"
-				},
-				{
-					"alias": "floor_corner_bottom_left",
-					"src": "floor_corner_bottom_left.png"
+					"alias": "bot_face_back_up_right",
+					"src": "bot/bot_face_back_up_right.png"
 				},
 				{
 					"alias": "apple",

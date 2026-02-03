@@ -21,7 +21,7 @@ export let ViewportContainer: Viewport;
 		width: App.WORLD_WIDTH,
 		height: App.WORLD_HEIGHT,
 		clearBeforeRender: true,
-		backgroundColor: "#94BBE9",
+		backgroundColor: "#1b8738",
 		sharedTicker: true,
 		powerPreference: "high-performance",
 		canvas: document.querySelector("#game_canvas") as HTMLCanvasElement,

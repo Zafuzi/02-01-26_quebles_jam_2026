@@ -1,13 +1,12 @@
-import { type Viewport } from "pixi-viewport";
-import { Assets, Point, Ticker } from "pixi.js";
-import { EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
+import { Assets, Point, RAD_TO_DEG, Ticker } from "pixi.js";
+import { Direction, EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
 import type { Pickup } from "./pickup.ts";
 
 export class Player extends EntitySprite {
 	public inventory: Pickup | null = null;
 	public inventory_lock_timeout: number = 0;
 
-	constructor(viewport: Viewport) {
+	constructor() {
 		super({
 			fileName: "bot_face_front",
 			position: new Point(250, 250),
@@ -18,9 +17,31 @@ export class Player extends EntitySprite {
 		})
 
 		this.sprite.anchor.set(0.5);
+	}
 
-		this.boundTo.width = viewport.width / viewport.scale.x;
-		this.boundTo.height = viewport.height / viewport.scale.y;
+	setMovementDirection = (xy: string) => {
+		const facing: { [key: string]: string } = {
+			// idle
+			"0,0": "bot_face_front",
+
+			// cardinal
+			"0,1": "bot_face_back", // up
+			"0,-1": "bot_face_front", // down
+			"-1,0": "bot_face_front_left", // left
+			"1,0": "bot_face_front_right", // right
+
+			// diagonals
+			"-1,1": "bot_face_back_up_left", // up left
+			"1,1": "bot_face_back_up_right", // up right
+			"-1,-1": "bot_face_front_down_left", // down left
+			"1,-1": "bot_face_front_down_right", // down right
+		}
+
+		const fileName = facing[xy];
+		if (this.fileName !== fileName) {
+			this.fileName = fileName;
+			this.sprite.texture = Assets.get(fileName);
+		}
 	}
 
 	update = (ticker: Ticker) => {
@@ -30,12 +51,11 @@ export class Player extends EntitySprite {
 			this.inventory_lock_timeout = 50;
 		}
 
-		this.keepInBounds();
-
 		const [moveX, moveY] = InputMoveAction.value;
-
-		const normal = new Point(moveX, moveY);
+		const normal = { x: moveX, y: moveY } as Point;
 		normalize(normal);
+
+		this.setMovementDirection(`${moveX},${moveY}`);
 
 		this.x += normal.x * this.speed * ticker.deltaTime;
 		this.y -= normal.y * this.speed * ticker.deltaTime;
@@ -46,19 +66,6 @@ export class Player extends EntitySprite {
 
 		if (this.inventory?.position) {
 			this.inventory.position = this.position.add(new Point(this.width / 2, 0));
-			this.inventory.keepInBounds();
-		}
-
-		if (moveY > 0) {
-			if (this.fileName !== "bot_face_back") {
-				this.fileName = "bot_face_back"
-				this.sprite.texture = Assets.get(this.fileName)
-			}
-		} else {
-			if (this.fileName !== "bot_face_front") {
-				this.fileName = "bot_face_front"
-				this.sprite.texture = Assets.get(this.fileName)
-			}
 		}
 	};
 }

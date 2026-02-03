@@ -1,6 +1,5 @@
 import { Point, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
-import { App } from "../../engine/Engine";
 import { Entity, EntitySprite, type EntitySpriteOptions } from "../../engine/Entity";
 
 export class Pickup extends EntitySprite {
@@ -18,9 +17,6 @@ export class Pickup extends EntitySprite {
 		});
 
 		this.sprite.anchor.set(0.5);
-
-		this.boundTo.width = App.viewport.width / App.viewport.scale.x;
-		this.boundTo.height = App.viewport.height / App.viewport.scale.y;
 
 		if (options?.dropTarget) {
 			this.dropTarget = options?.dropTarget as Entity;
