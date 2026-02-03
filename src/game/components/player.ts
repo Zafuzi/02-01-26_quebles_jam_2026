@@ -1,6 +1,6 @@
 import { Assets, Point, Ticker } from "pixi.js";
-import { EntitySprite, InputMoveAction, normalize, PlayerInteract } from "../../engine/Engine.ts";
-import { LAYERS } from "../game.ts";
+import { EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
+import { LAYERS } from "../GLOBALS.ts";
 import type { Pickup } from "./pickup.ts";
 
 export class Player extends EntitySprite {

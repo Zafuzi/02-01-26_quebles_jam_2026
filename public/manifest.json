@@ -50,6 +50,18 @@
 				{
 					"alias": "apple_bin",
 					"src": "env/barrel.png"
+				},
+				{
+					"alias": "fence_horizontal",
+					"src": "env/fence_horizontal.png"
+				},
+				{
+					"alias": "fence_vertical",
+					"src": "env/fence_vertical.png"
+				},
+				{
+					"alias": "grass",
+					"src": "env/grass.png"
 				}
 			]
 		}

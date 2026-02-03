@@ -1,24 +1,26 @@
 import type { Viewport } from "pixi-viewport";
-import { App, EntitySprite, type EntitySpriteOptions } from "../../engine/Engine.ts";
+import { EntityTilingSprite, type EntitySpriteOptions } from "../../engine/Engine.ts";
+import { LAYERS } from "../GLOBALS.ts";
 
-export default class Background extends EntitySprite {
-	constructor(options: EntitySpriteOptions) {
-		options.isTiling = true;
+export class Background extends EntityTilingSprite {
+	public tileWidth: number = 1;
+	public tileHeight: number = 1;
 
+	constructor(options: { width?: number, height?: number, tileScale?: number } & EntitySpriteOptions) {
 		super(options);
 
-		this.zIndex = -1;
+		this.zIndex = LAYERS.bg;
 		this.position.set(0, 0);
-		this.tileSprite.setSize(App.WORLD_WIDTH, App.WORLD_HEIGHT);
+
+		this.tileSprite.width = options.width ?? 0;
+		this.tileSprite.height = options.height ?? 0;
+		this.tileSprite.tileScale = options.tileScale ?? 1;
 	}
 
 	onViewportMoved = (viewport: Viewport) => {
-		if (this.tileSprite && viewport.scale) {
-			this.tileSprite.position.set(viewport.left, viewport.top);
-			this.tileSprite.width = viewport.worldScreenWidth / viewport.scale.x;
-			this.tileSprite.height = viewport.worldScreenHeight / viewport.scale.y;
-			this.tileSprite.tilePosition.x = -viewport.left;
-			this.tileSprite.tilePosition.y = -viewport.top;
-		}
+		this.position.set(viewport.left, viewport.top);
+
+		this.tileSprite.tilePosition.x = -viewport.left;
+		this.tileSprite.tilePosition.y = -viewport.top;
 	};
 }
