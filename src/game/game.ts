@@ -118,8 +118,8 @@ const config: Partial<ApplicationOptions> = {
 
 	const treeSpawner = new Spawner<Tree>({
 		spawnPoint: () => ({
-			x: NumberInRange(-Game.viewport.width, Game.viewport.height),
-			y: NumberInRange(-Game.viewport.width, Game.viewport.height),
+			x: appleBin.x + NumberInRange(-Game.viewport.width, Game.viewport.height),
+			y: eggBin.y + NumberInRange(0, Game.viewport.height),
 		}),
 		factory: (position) => new Tree({
 			position,
@@ -138,8 +138,8 @@ const config: Partial<ApplicationOptions> = {
 		}),
 	});
 
-	treeSpawner.spawnMany(5);
 	cluckerSpawner.spawnMany(5);
+	treeSpawner.spawnMany(5);
 
 	Game.viewport.addChild(henHouse, appleBin, eggBin);
 	envLayer.attach(henHouse, appleBin, eggBin);
