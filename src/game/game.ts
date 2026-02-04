@@ -1,14 +1,17 @@
 import { initDevtools } from "@pixi/devtools";
 import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
-import { Assets, Point, type ApplicationOptions, type PointData } from "pixi.js";
+import { Assets, Point, RenderLayer, type ApplicationOptions } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
-import { Distance, Game, NumberInRange } from "../engine/Engine.ts";
-import { LAYERS } from "./GLOBALS.ts";
+import { Game, NumberInRange } from "../engine/Engine.ts";
+import { bgLayer, envLayer, LAYERS, pickupLayer, playerLayer } from "./GLOBALS.ts";
+import { Apple } from "./components/apple";
 import { Background } from "./components/background.ts";
 import { Bin } from "./components/bin.ts";
+import { Clucker } from "./components/clucker";
 import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
+import { PickupSpawner } from "./components/spawner";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -46,6 +49,8 @@ const config: Partial<ApplicationOptions> = {
 		ticker: Game.ticker,
 	});
 
+	Game.viewport.sortableChildren = true;
+
 	Game.stage.addChild(Game.viewport);
 
 	// Warm/cozy full-viewport grade
@@ -58,6 +63,8 @@ const config: Partial<ApplicationOptions> = {
 	Game.viewport.filters = [worldColor];
 	Game.viewport.setZoom(0.5);
 
+	Game.viewport.addChild(bgLayer, pickupLayer, envLayer, playerLayer);
+
 	const background = new Background({
 		fileName: "grass",
 		tileScale: 2,
@@ -65,14 +72,16 @@ const config: Partial<ApplicationOptions> = {
 		height: Game.viewport.screenHeight,
 	})
 	background.onViewportMoved(Game.viewport);
+	Game.viewport.addChild(background);
+	bgLayer.attach(background);
 
 	Game.viewport.on("moved", () => {
 		background.onViewportMoved(Game.viewport);
 	})
-	Game.viewport.addChild(background);
 
 	const player = new Player();
-	Game.viewport.addChild(player)
+	Game.viewport.addChild(player);
+	playerLayer.attach(player);
 
 	const bin = new Bin({
 		fileName: "barrel",
@@ -87,62 +96,56 @@ const config: Partial<ApplicationOptions> = {
 		anchor: 0.5,
 		zIndex: LAYERS.env,
 	});
-	Game.viewport.addChild(henHouse);
-	Game.viewport.addChild(bin);
 
-	const apples: Pickup[] = [];
-	const cluckers: Pickup[] = [];
+	Game.viewport.addChild(henHouse, bin);
+	envLayer.attach(henHouse, bin);
 
-	for (let i = 0; i < 10; i++) {
-		const apple = new Pickup({
-			fileName: "apple",
-			position: new Point(
-				NumberInRange(-800, 800),
-				NumberInRange(-600, 600),
-			),
+	const appleSpawner = new PickupSpawner<Apple>({
+		spawn_rate: 1000,
+		max: 10,
+		spawnPoint: () => ({
+			x: NumberInRange(0, 800),
+			y: NumberInRange(200, 600),
+		}),
+		factory: (position) => new Apple({
+			position,
 			dropTarget: bin,
-		});
+		}),
+	});
 
-		apples.push(apple);
-		Game.viewport.addChild(apple);
-
-		const clucker = new Pickup({
-			fileName: "clucker",
-			position: new Point(
-				NumberInRange(-800, 800),
-				NumberInRange(-600, 600),
-			),
+	const cluckerSpawner = new PickupSpawner<Clucker>({
+		spawn_rate: 1_000,
+		max: 10,
+		spawnPoint: () => ({
+			x: henHouse.x + NumberInRange(-200, 200),
+			y: henHouse.y + NumberInRange(-200, 200),
+		}),
+		pickupCooldownMs: 2500,
+		factory: (position) => new Clucker({
+			position,
 			dropTarget: henHouse,
-		});
-		let vel: PointData = { x: NumberInRange(-0.5, 0.5), y: NumberInRange(-0.5, 0.5) }
-		let start_pos: Point = new Point(clucker.position.x, clucker.position.y);
-		clucker.update = () => {
-			clucker.x += vel.x
-			clucker.y += vel.y
+		}),
+	});
 
-			const d = Distance(clucker.position, start_pos);
-			if (d > 200) {
-				vel.x *= -1
-				vel.y *= -1
-			}
-		}
-
-		cluckers.push(clucker);
-		Game.viewport.addChild(clucker);
-	}
+	appleSpawner.spawnMany(5);
+	cluckerSpawner.spawnMany(5);
 
 	let isWon = false;
 	const msg = (globalThis as any).msg;
 
-	const pickups = [...apples, ...cluckers];
+	const apples = appleSpawner.spawns;
+	const cluckers = cluckerSpawner.spawns;
+
 	Game.ticker.add(() => {
-		pickups.forEach((p) => {
+		apples.forEach((p) => {
 			if (
 				p.alive && p.collide &&
+				p.pickupCooldownMs <= 0 &&
 				player.inventory_lock_timeout <= 0 &&
 				!player.inventory &&
 				collideEntities(player.collider, p.collider)
 			) {
+				pickupLayer.detach(p);
 				player.inventory_lock_timeout = 50;
 				player.inventory = p;
 				msg.classList.add("hid");
@@ -150,7 +153,21 @@ const config: Partial<ApplicationOptions> = {
 			}
 		});
 
-		const picked_up = pickups.filter((p) => p.alive).length;
+		cluckers.forEach((p) => {
+			if (
+				p.alive && p.collide &&
+				p.pickupCooldownMs <= 0 &&
+				player.inventory_lock_timeout <= 0 &&
+				!player.inventory &&
+				collideEntities(player.collider, p.collider)
+			) {
+				pickupLayer.detach(p);
+				player.inventory_lock_timeout = 50;
+				player.inventory = p;
+				msg.classList.add("hid");
+				return;
+			}
+		});
 
 		const apples_picked_up = apples.filter((p) => p.alive).length;
 		const cluckers_picked_up = cluckers.filter((p) => p.alive).length;
@@ -158,7 +175,7 @@ const config: Partial<ApplicationOptions> = {
 		(globalThis as any).score_pickups_apples.innerHTML = apples_picked_up;
 		(globalThis as any).score_pickups_cluckers.innerHTML = cluckers_picked_up;
 
-		if (!isWon && picked_up === 0) {
+		if (!isWon && apples_picked_up === 0 && cluckers_picked_up === 0) {
 			isWon = true;
 
 			msg.classList.remove("hid");

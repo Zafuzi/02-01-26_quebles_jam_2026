@@ -6,8 +6,9 @@ import { LAYERS } from "../GLOBALS";
 export class Pickup extends EntitySprite {
 	public isBeingHeld: boolean = false;
 	public dropTarget: Entity | null = null;
+	public pickupCooldownMs: number = 0;
 
-	constructor(options?: { dropTarget?: Entity } & EntitySpriteOptions) {
+	constructor(options?: { dropTarget?: Entity; pickupCooldownMs?: number } & EntitySpriteOptions) {
 		super({
 			...options,
 			fileName: options?.fileName ?? "apple",
@@ -20,9 +21,13 @@ export class Pickup extends EntitySprite {
 		if (options?.dropTarget) {
 			this.dropTarget = options?.dropTarget as Entity;
 		}
+		if (options?.pickupCooldownMs) {
+			this.pickupCooldownMs = options.pickupCooldownMs;
+		}
 	}
 
 	update = (ticker: Ticker) => {
+		this.updatePickupCooldown(ticker);
 		this.newtonian(ticker);
 	};
 
@@ -43,4 +48,9 @@ export class Pickup extends EntitySprite {
 			this.destroy();
 		}
 	};
+
+	protected updatePickupCooldown(ticker: Ticker) {
+		if (this.pickupCooldownMs <= 0) return;
+		this.pickupCooldownMs = Math.max(0, this.pickupCooldownMs - ticker.deltaMS);
+	}
 }
