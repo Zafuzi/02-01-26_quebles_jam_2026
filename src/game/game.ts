@@ -3,7 +3,7 @@ import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
 import { Assets, Point, RenderLayer, type ApplicationOptions } from "pixi.js";
 import { collideEntities } from "../engine/Collision.ts";
-import { Game, NumberInRange } from "../engine/Engine.ts";
+import { Game, InputMoveAction, NumberInRange, PlayerInteract } from "../engine/Engine.ts";
 import { bgLayer, envLayer, LAYERS, pickupLayer, playerLayer } from "./GLOBALS.ts";
 import { Apple } from "./components/apple";
 import { Background } from "./components/background.ts";
@@ -61,7 +61,7 @@ const config: Partial<ApplicationOptions> = {
 		contrast: 1.3,
 	});
 	Game.viewport.filters = [worldColor];
-	Game.viewport.setZoom(0.5);
+	Game.viewport.setZoom(0.8);
 
 	Game.viewport.addChild(bgLayer, pickupLayer, envLayer, playerLayer);
 
@@ -88,6 +88,7 @@ const config: Partial<ApplicationOptions> = {
 		position: new Point(800, 0),
 		anchor: 0.5,
 		zIndex: LAYERS.env,
+		collide: true,
 	});
 
 	const henHouse = new Bin({
@@ -96,6 +97,15 @@ const config: Partial<ApplicationOptions> = {
 		anchor: 0.5,
 		zIndex: LAYERS.env,
 	});
+
+	henHouse.collider = {
+		body: {
+			width: henHouse.width - 100,
+			height: henHouse.height - 100,
+		},
+		position: henHouse.position,
+		scale: 1,
+	}
 
 	Game.viewport.addChild(henHouse, bin);
 	envLayer.attach(henHouse, bin);
@@ -190,6 +200,9 @@ const config: Partial<ApplicationOptions> = {
 				<p>Inventory: [${player.inventory?.fileName ?? ""}]</p>
 			</div>
 		`
+
+		InputMoveAction.update();
+		PlayerInteract.update();
 	});
 
 	Game.viewport.follow(player, {

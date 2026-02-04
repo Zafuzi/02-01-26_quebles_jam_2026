@@ -87,7 +87,7 @@ export class Entity extends Container {
 			if (this.alive && typeof this.update === "function") {
 				this.update(time);
 				if (this.collide) {
-					this.collider.body = this.getSize();
+					this.collider.body = this.collider.body ?? this.getSize();
 					this.collider.position = this.position;
 					this.collider.scale = 1;
 				}

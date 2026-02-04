@@ -54,7 +54,7 @@ export class Player extends EntitySprite {
 		const normal = { x: moveX, y: moveY } as Point;
 		normalize(normal);
 
-		const movementDirection = `${moveX},${moveY}`;
+		const movementDirection = `${Math.round(moveX)},${Math.round(moveY)}`;
 
 		this.setMovementDirection(movementDirection);
 

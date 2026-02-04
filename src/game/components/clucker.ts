@@ -26,8 +26,12 @@ export class Clucker extends Pickup {
 		this.changeTimer = NumberInRange(30, 120);
 	}
 
-	update = (ticker: Ticker) => {
+	movement = (ticker: Ticker) => {
 		this.updatePickupCooldown(ticker);
+		if (!this.collide) {
+			return;
+		}
+
 		const dt = ticker.deltaTime;
 
 		if (this.pauseTimer > 0) {

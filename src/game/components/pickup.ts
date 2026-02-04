@@ -2,11 +2,14 @@ import { Point, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
 import { Entity, EntitySprite, type EntitySpriteOptions } from "../../engine/Entity";
 import { LAYERS } from "../GLOBALS";
+import { Clamp, Distance } from "../../engine/Math";
 
 export class Pickup extends EntitySprite {
 	public isBeingHeld: boolean = false;
 	public dropTarget: Entity | null = null;
 	public pickupCooldownMs: number = 0;
+	private alphaTarget: number = 1;
+	public movement: null | ((...args: any[]) => void) = null;
 
 	constructor(options?: { dropTarget?: Entity; pickupCooldownMs?: number } & EntitySpriteOptions) {
 		super({
@@ -16,6 +19,7 @@ export class Pickup extends EntitySprite {
 			collide: true,
 			zIndex: LAYERS.pickup,
 			anchor: 0.5,
+			alpha: 1,
 		});
 
 		if (options?.dropTarget) {
@@ -28,7 +32,24 @@ export class Pickup extends EntitySprite {
 
 	update = (ticker: Ticker) => {
 		this.updatePickupCooldown(ticker);
-		this.newtonian(ticker);
+
+		if (this.movement) {
+			this.movement(ticker);
+		} else {
+			this.newtonian(ticker);
+		}
+
+		if (this.alpha !== this.alphaTarget) {
+			this.alpha -= 0.01;
+			this.alpha = Clamp(this.alpha, 0, 1);
+		}
+
+		if (this.alpha === this.alphaTarget && !this.collide) {
+			console.log("die")
+			this.alive = false;
+			this.debug = false;
+			this.destroy();
+		}
 	};
 
 	checkIfInDropTarget = () => {
@@ -36,16 +57,9 @@ export class Pickup extends EntitySprite {
 	}
 
 	drop = () => {
-		this.velocity.y -= 10;
-		setTimeout(() => {
-			this.velocity.y += 10;
-		}, 100);
-
 		if (this.dropTarget && collideEntities(this.dropTarget.collider, this.collider)) {
-			this.alive = false;
-			this.debug = false;
+			this.alphaTarget = 0;
 			this.collide = false;
-			this.destroy();
 		}
 	};
 
