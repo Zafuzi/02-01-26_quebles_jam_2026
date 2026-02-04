@@ -101,11 +101,11 @@ const config: Partial<ApplicationOptions> = {
 	envLayer.attach(henHouse, bin);
 
 	const appleSpawner = new PickupSpawner<Apple>({
-		spawn_rate: 1000,
+		spawn_rate: 2_000,
 		max: 10,
 		spawnPoint: () => ({
-			x: NumberInRange(0, 800),
-			y: NumberInRange(200, 600),
+			x: bin.x + bin.width / 2 + NumberInRange(-800, 500),
+			y: bin.y + bin.height + NumberInRange(0, 500),
 		}),
 		factory: (position) => new Apple({
 			position,
@@ -117,8 +117,8 @@ const config: Partial<ApplicationOptions> = {
 		spawn_rate: 1_000,
 		max: 10,
 		spawnPoint: () => ({
-			x: henHouse.x + NumberInRange(-200, 200),
-			y: henHouse.y + NumberInRange(-200, 200),
+			x: henHouse.x + henHouse.width / 2 + NumberInRange(-800, 800),
+			y: henHouse.y + henHouse.height + NumberInRange(0, 600),
 		}),
 		pickupCooldownMs: 2500,
 		factory: (position) => new Clucker({
