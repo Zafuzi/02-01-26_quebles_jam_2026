@@ -109,7 +109,7 @@
 				max-height: 300px;
 			}
 
-			#score {
+			#inventory {
 				position: absolute;
 				bottom: var(--hud-frame-gap);
 				left: 50%;
@@ -137,9 +137,7 @@
 	</head>
 
 	<body>
-		<div
-			class="hid"
-			id="dbg">
+		<div id="dbg">
 			<div
 				class="panel"
 				id="dbg_state"></div>
@@ -153,7 +151,7 @@
 
 		<div
 			class="panel"
-			id="score">
+			id="inventory">
 			<h2>
 				<img
 					width="32"
@@ -163,7 +161,7 @@
 
 				<span
 					class="red"
-					id="score_pickups_apples"
+					id="inventory_apples"
 					>0</span
 				>
 
@@ -175,7 +173,7 @@
 
 				<span
 					class="yellow"
-					id="score_pickups_cluckers"
+					id="inventory_eggs"
 					>0</span
 				>
 			</h2>

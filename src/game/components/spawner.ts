@@ -10,6 +10,7 @@ export type SpawnerOptions<T extends EntitySprite | Pickup> = {
 	pickupCooldownMs?: number;
 	spawn_rate?: number;
 	max?: number;
+	onSpawn?: (item: T) => void;
 };
 
 export class Spawner<T extends EntitySprite | Pickup> {
@@ -20,6 +21,7 @@ export class Spawner<T extends EntitySprite | Pickup> {
 	public spawn_rate: number = 10;
 	public max: number = 0;
 	private spawn_timer: number = 0;
+	public onSpawn?: (item: T) => void;
 
 	static gridPoints(options: {
 		origin: PointData;
@@ -61,6 +63,7 @@ export class Spawner<T extends EntitySprite | Pickup> {
 		this.pickupCooldownMs = options.pickupCooldownMs ?? 0;
 		this.spawn_rate = options.spawn_rate ?? 0;
 		this.max = options.max ?? 0;
+		this.onSpawn = options.onSpawn;
 
 		Game.ticker.add(this.update);
 	}
@@ -89,6 +92,10 @@ export class Spawner<T extends EntitySprite | Pickup> {
 		this.spawns.push(item);
 
 		Game.viewport.addChild(item);
+
+		if (this.onSpawn) {
+			this.onSpawn(item);
+		}
 
 		item.on("destroyed", (destroyed) => {
 			const index = this.spawns.findIndex((s) => s.uid === destroyed.uid);

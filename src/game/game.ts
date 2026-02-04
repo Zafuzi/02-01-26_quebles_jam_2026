@@ -2,7 +2,6 @@ import { initDevtools } from "@pixi/devtools";
 import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
 import { Assets, Point, type ApplicationOptions } from "pixi.js";
-import { collideEntities } from "../engine/Collision.ts";
 import { Game, InputMoveAction, LocationAround, NumberInRange, PlayerInteract } from "../engine/Engine.ts";
 import { bgLayer, envLayer, Score } from "./GLOBALS.ts";
 import { Background } from "./components/background.ts";
@@ -153,6 +152,13 @@ const config: Partial<ApplicationOptions> = {
 			}),
 	});
 
+	player.setDropTarget("apple", appleBin, (count) => {
+		Score.apples += count;
+	});
+	player.setDropTarget("egg", eggBin, (count) => {
+		Score.eggs += count;
+	});
+
 	cluckerSpawner.spawnMany(5);
 	treeSpawner.spawnManyAt(Spawner.gridPoints({
 		origin: new Point(-300, 900),
@@ -172,52 +178,23 @@ const config: Partial<ApplicationOptions> = {
 	const trees = treeSpawner.spawns;
 	const cluckers = cluckerSpawner.spawns;
 
+	const registerAppleSpawner = (tree: Tree) => {
+		tree.appleSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
+		tree.appleSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
+	};
+
+	const registerEggSpawner = (clucker: Clucker) => {
+		clucker.eggSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
+		clucker.eggSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
+	};
+
+	treeSpawner.onSpawn = (tree) => registerAppleSpawner(tree as Tree);
+	cluckerSpawner.onSpawn = (clucker) => registerEggSpawner(clucker as Clucker);
+
+	trees.forEach((tree) => registerAppleSpawner(tree as Tree));
+	cluckers.forEach((clucker) => registerEggSpawner(clucker as Clucker));
+
 	Game.ticker.add(() => {
-		trees.forEach((tree) => {
-			(tree as Tree).appleSpawner.spawns.forEach((p) => {
-				if (
-					p.alive &&
-					p.collide &&
-					(p as Pickup).pickupCooldownMs <= 0 &&
-					player.inventory_lock_timeout <= 0 &&
-					!player.inventory &&
-					collideEntities(player.collider, p.collider)
-				) {
-					player.inventory_lock_timeout = 50;
-					player.inventory = p as Pickup;
-
-					msg.classList.add("hid");
-					return;
-				}
-			});
-		});
-
-		let eggs = 0;
-		cluckers.forEach((clucker) => {
-			(clucker as Clucker).eggSpawner.spawns.forEach((p) => {
-				if (p.alive && p.collide) {
-					eggs++;
-				}
-
-				if (
-					p.alive &&
-					p.collide &&
-					(p as Pickup).pickupCooldownMs <= 0 &&
-					player.inventory_lock_timeout <= 0 &&
-					!player.inventory &&
-					collideEntities(player.collider, p.collider)
-				) {
-					player.inventory_lock_timeout = 50;
-					player.inventory = p as Pickup;
-					msg.classList.add("hid");
-					return;
-				}
-			});
-		});
-
-		(globalThis as any).score_pickups_apples.innerHTML = Score.apples;
-		(globalThis as any).score_pickups_cluckers.innerHTML = Score.eggs;
-
 		if (!isWon && Score.apples >= 10 && Score.eggs >= 10) {
 			isWon = true;
 
@@ -230,9 +207,13 @@ const config: Partial<ApplicationOptions> = {
 			<div>
 				<h3> Player </h3>
 				<p>PosX: ${Math.round(player.position.x)}, PosY: ${Math.round(player.position.y)}</p>
-				<p>Inventory: [${player.inventory?.fileName ?? ""}]</p>
+				<p>Score: Apples ${Score.apples}, Eggs ${Score.eggs}</p>
 			</div>
 		`;
+
+		(globalThis as any).inventory_apples.innerHTML = player.inventoryCounts.get("apple") ?? 0;
+
+		(globalThis as any).inventory_eggs.innerHTML = player.inventoryCounts.get("egg") ?? 0;
 
 		InputMoveAction.update();
 		PlayerInteract.update();

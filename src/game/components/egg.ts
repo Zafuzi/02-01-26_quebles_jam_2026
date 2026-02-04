@@ -1,6 +1,5 @@
 import type { Entity } from "../../engine/Entity";
 import type { EntitySpriteOptions } from "../../engine/Entity";
-import { Score } from "../GLOBALS";
 import { Pickup } from "./pickup";
 
 export class Egg extends Pickup {
@@ -16,9 +15,5 @@ export class Egg extends Pickup {
 			position: this.position,
 			scale: 1,
 		}
-
-		this.on("destroyed", () => {
-			Score.eggs++;
-		});
 	}
 }
