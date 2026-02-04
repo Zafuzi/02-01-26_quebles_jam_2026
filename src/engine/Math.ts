@@ -54,11 +54,19 @@ export const normalize = (point: PointData): void => {
 	point.y /= mag;
 };
 
-export const LocationAround = (position: Point, minDistance: number, maxDistance: number): Point => {
-	// get a random angle around the ring
-	const angle = Math.round(NumberInRange(0, 360)) * DEG_TO_RAD; // use radians, saves converting degrees to radians
+export const LocationAround = (position: PointData, minDistance: number, maxDistance: number): PointData => {
+	// Uniform random point in an annulus (torus in 2D)
+	const u = Math.random();
+	const v = Math.random();
+	const min2 = minDistance * minDistance;
+	const max2 = maxDistance * maxDistance;
+	const r = Math.sqrt(u * (max2 - min2) + min2);
+	const angle = v * 2 * Math.PI;
 
-	return position.add(Cartesian(angle).multiplyScalar(NumberInRange(minDistance, maxDistance)));
+	return {
+		x: position.x + Math.cos(angle) * r,
+		y: position.y + Math.sin(angle) * r,
+	};
 };
 
 export const Roll = (amount: number): number => {

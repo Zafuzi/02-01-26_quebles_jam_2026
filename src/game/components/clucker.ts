@@ -1,10 +1,10 @@
 import { Point, type Ticker } from "pixi.js";
 import type { Entity } from "../../engine/Entity";
 import type { EntitySpriteOptions } from "../../engine/Entity";
-import { Distance, EntitySprite, NumberInRange } from "../../engine/Engine";
+import { CoinFlip, Distance, EntitySprite, NumberInRange } from "../../engine/Engine";
 import { Spawner } from "./spawner";
 import { Egg } from "./egg";
-import { pickupLayer } from "../GLOBALS";
+import { envLayer } from "../GLOBALS";
 
 export class Clucker extends EntitySprite {
 	private startPos: Point;
@@ -43,11 +43,15 @@ export class Clucker extends EntitySprite {
 				spawner.spawn_rate = NumberInRange(100, 5_000);
 				return new Egg({
 					position,
-					layer: pickupLayer,
+					layer: envLayer,
 					dropTarget: this.dropTarget,
-				})
+				});
 			},
 		});
+
+		if (CoinFlip()) {
+			this.eggSpawner.spawn();
+		}
 	}
 
 	update = (ticker: Ticker) => {

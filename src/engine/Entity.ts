@@ -58,6 +58,7 @@ export class Entity extends Container {
 	public debugGraphic?: Graphics;
 	public boundTo: Rectangle = new Rectangle(0, 0, 0, 0);
 
+	public ignoreSort?: boolean = false;
 	public layer?: RenderLayer;
 
 	constructor(options: EntityOptions) {
@@ -88,24 +89,42 @@ export class Entity extends Container {
 		};
 
 		this.layer = options?.layer;
+
 		if (this.layer) {
 			this.layer.attach(this);
 		}
 
 		this.tickerCallback = (time: Ticker) => {
+			this.layerSort();
+
 			this.renderable = this.alive;
-			if (this.alive && typeof this.update === "function") {
+
+
+			if (this.update) {
 				this.update(time);
-				if (this.collide) {
-					this.collider.body = this.collider.body ?? this.getSize();
-					this.collider.position = this.position;
-					this.collider.scale = 1;
-				}
-				this.drawColliderDebug();
 			}
+
+			if (this.collide) {
+				this.collider.body = this.collider.body ?? this.getSize();
+				this.collider.position = this.position;
+				this.collider.scale = 1;
+			}
+
+			this.drawColliderDebug();
 		};
 
 		Game.ticker.add(this.tickerCallback);
+		this.layerSort();
+	}
+
+	layerSort() {
+		if (this.ignoreSort) {
+			return;
+		}
+
+		const sprite = (this as unknown as EntitySprite).sprite;
+		const feetY = this.y + this.height * (1 - (sprite?.anchor?.y ?? 0));
+		this.zIndex = Math.floor(feetY);
 	}
 
 	destroy(): void {
@@ -237,8 +256,7 @@ export class EntitySprite extends Entity {
 }
 
 export class EntityTilingSprite extends Entity {
-	public sprite: Sprite = new Sprite();
-	public tileSprite: TilingSprite = new TilingSprite();
+	public sprite: TilingSprite = new TilingSprite();
 	public fileName: string;
 
 	constructor(options: EntityOptions & EntitySpriteOptions) {
@@ -246,12 +264,12 @@ export class EntityTilingSprite extends Entity {
 
 		this.fileName = options.fileName;
 
-		this.tileSprite.texture = Assets.get(this.fileName);
-		this.tileSprite.width = options.tileWidth || 0;
-		this.tileSprite.height = options.tileHeight || 0;
+		this.sprite.texture = Assets.get(this.fileName);
+		this.sprite.width = options.tileWidth || 0;
+		this.sprite.height = options.tileHeight || 0;
 
-		if (options.anchor) this.tileSprite.anchor = options.anchor;
-		this.addChild(this.tileSprite);
+		if (options.anchor) this.sprite.anchor = options.anchor;
+		this.addChild(this.sprite);
 	}
 }
 

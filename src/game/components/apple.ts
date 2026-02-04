@@ -12,6 +12,6 @@ export class Apple extends Pickup {
 
 		this.on("destroyed", () => {
 			Score.apples++;
-		})
+		});
 	}
 }

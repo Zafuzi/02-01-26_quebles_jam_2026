@@ -1,8 +1,8 @@
 import { Point, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
 import { Entity, EntitySprite, type EntitySpriteOptions } from "../../engine/Entity";
-import { LAYERS } from "../GLOBALS";
-import { Clamp, Distance } from "../../engine/Math";
+import { Clamp } from "../../engine/Math";
+import { envLayer } from "../GLOBALS";
 
 export class Pickup extends EntitySprite {
 	public isBeingHeld: boolean = false;
@@ -17,9 +17,9 @@ export class Pickup extends EntitySprite {
 			fileName: options?.fileName ?? "apple",
 			position: options?.position ?? new Point(500, 500),
 			collide: true,
-			zIndex: LAYERS.pickup,
 			anchor: 0.5,
 			alpha: 1,
+			layer: envLayer,
 		});
 
 		if (options?.dropTarget) {
@@ -45,7 +45,7 @@ export class Pickup extends EntitySprite {
 		}
 
 		if (this.alpha === this.alphaTarget && !this.collide) {
-			console.log("die")
+			console.log("die");
 			this.alive = false;
 			this.debug = false;
 			this.destroy();
@@ -54,7 +54,7 @@ export class Pickup extends EntitySprite {
 
 	checkIfInDropTarget = () => {
 		return this.dropTarget ? collideEntities(this.collider, this.dropTarget?.collider) : false;
-	}
+	};
 
 	drop = () => {
 		if (this.dropTarget && collideEntities(this.dropTarget.collider, this.collider)) {

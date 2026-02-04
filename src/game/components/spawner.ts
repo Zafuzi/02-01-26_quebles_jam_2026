@@ -1,7 +1,6 @@
 import { Point, type PointData } from "pixi.js";
 import type { Pickup } from "./pickup";
 import { Entity, EntitySprite, Game } from "../../engine/Engine";
-import { envLayer, pickupLayer } from "../GLOBALS";
 
 type SpawnPoint = PointData | (() => PointData);
 
@@ -22,6 +21,40 @@ export class Spawner<T extends EntitySprite | Pickup> {
 	public max: number = 0;
 	private spawn_timer: number = 0;
 
+	static gridPoints(options: {
+		origin: PointData;
+		cols: number;
+		rows: number;
+		spacingX: number;
+		spacingY: number;
+		jitterX?: number;
+		jitterY?: number;
+		dirX?: 1 | -1;
+		dirY?: 1 | -1;
+	}): Point[] {
+		const points: Point[] = [];
+		const jitterX = options.jitterX ?? 0;
+		const jitterY = options.jitterY ?? 0;
+		const dirX = options.dirX ?? 1;
+		const dirY = options.dirY ?? 1;
+
+		for (let row = 0; row < options.rows; row++) {
+			for (let col = 0; col < options.cols; col++) {
+				const x =
+					options.origin.x +
+					col * options.spacingX * dirX +
+					(Math.random() * 2 - 1) * jitterX;
+				const y =
+					options.origin.y +
+					row * options.spacingY * dirY +
+					(Math.random() * 2 - 1) * jitterY;
+				points.push(new Point(x, y));
+			}
+		}
+
+		return points;
+	}
+
 	constructor(options: SpawnerOptions<T>) {
 		this.spawnPoint = options.spawnPoint;
 		this.factory = options.factory;
@@ -37,15 +70,18 @@ export class Spawner<T extends EntitySprite | Pickup> {
 			if (this.spawns.length < this.max) {
 				this.spawn();
 			}
-			this.spawn_timer = 0
+			this.spawn_timer = 0;
 		}
 
 		this.spawn_timer++;
-	}
+	};
 
 	spawn(): T {
-		const pos = this.resolvePoint();
-		const item = this.factory(pos, this);
+		return this.spawnAt(this.resolvePoint());
+	}
+
+	spawnAt(point: Point): T {
+		const item = this.factory(point, this);
 
 		if (this.pickupCooldownMs > 0) {
 			(item as Pickup).pickupCooldownMs = this.pickupCooldownMs;
@@ -60,7 +96,7 @@ export class Spawner<T extends EntitySprite | Pickup> {
 			if (index >= 0) {
 				this.spawns.splice(index, 1);
 			}
-		})
+		});
 		return item;
 	}
 
@@ -68,6 +104,14 @@ export class Spawner<T extends EntitySprite | Pickup> {
 		const items: T[] = [];
 		for (let i = 0; i < count; i++) {
 			items.push(this.spawn());
+		}
+		return items;
+	}
+
+	spawnManyAt(points: Point[]): T[] {
+		const items: T[] = [];
+		for (const point of points) {
+			items.push(this.spawnAt(point));
 		}
 		return items;
 	}

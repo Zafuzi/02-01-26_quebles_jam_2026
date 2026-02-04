@@ -1,6 +1,6 @@
 import { Assets, Point, Ticker } from "pixi.js";
 import { Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
-import { LAYERS } from "../GLOBALS.ts";
+import { envLayer, } from "../GLOBALS.ts";
 import type { Pickup } from "./pickup.ts";
 
 export class Player extends EntitySprite {
@@ -15,8 +15,8 @@ export class Player extends EntitySprite {
 			speed: 8,
 			collide: true,
 			anchor: 0.5,
-			zIndex: LAYERS.player,
-		})
+			layer: envLayer,
+		});
 	}
 
 	setMovementDirection = (xy: string) => {
@@ -40,14 +40,14 @@ export class Player extends EntitySprite {
 			"1,1": "ne", // up right
 			"-1,-1": "sw", // down left
 			"1,-1": "se", // down right
-		}
+		};
 
 		const fileName = `b_${facing[xy]}${holding}`;
 		if (this.fileName !== fileName) {
 			this.fileName = fileName;
 			this.sprite.texture = Assets.get(fileName);
 		}
-	}
+	};
 
 	update = (ticker: Ticker) => {
 		const [moveX, moveY] = InputMoveAction.value;
@@ -71,8 +71,11 @@ export class Player extends EntitySprite {
 			this.inventory.position.x = this.position.x;
 			this.inventory.position.y = this.position.y - this.height / 2 - this.inventory.height / 2;
 
+			this.inventory.zIndex = this.zIndex;
+			this.inventory.ignoreSort = true;
 
 			if (this.inventory_lock_timeout <= 0 && this.inventory.checkIfInDropTarget()) {
+				this.inventory.ignoreSort = false;
 				this.inventory.drop();
 				this.inventory = null;
 				this.inventory_lock_timeout = 50;

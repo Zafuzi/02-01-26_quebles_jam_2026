@@ -11,8 +11,14 @@ export class Egg extends Pickup {
 			collide: true,
 		});
 
+		this.collider = {
+			body: 30,
+			position: this.position,
+			scale: 1,
+		}
+
 		this.on("destroyed", () => {
 			Score.eggs++;
-		})
+		});
 	}
 }
