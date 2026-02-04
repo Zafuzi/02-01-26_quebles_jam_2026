@@ -83,8 +83,8 @@ const config: Partial<ApplicationOptions> = {
 	Game.viewport.addChild(player);
 	playerLayer.attach(player);
 
-	const bin = new Bin({
-		fileName: "barrel",
+	const appleBin = new Bin({
+		fileName: "barrel_apples",
 		position: new Point(800, 0),
 		anchor: 0.5,
 		zIndex: LAYERS.env,
@@ -98,28 +98,35 @@ const config: Partial<ApplicationOptions> = {
 		zIndex: LAYERS.env,
 	});
 
-	henHouse.collider = {
+	const eggBin = new Bin({
+		fileName: "barrel_eggs",
+		position: new Point(0, 200),
+		anchor: 0.5,
+		zIndex: LAYERS.env,
+	});
+
+	eggBin.collider = {
 		body: {
-			width: henHouse.width - 100,
-			height: henHouse.height - 100,
+			width: eggBin.width - 100,
+			height: eggBin.height - 100,
 		},
-		position: henHouse.position,
+		position: eggBin.position,
 		scale: 1,
 	}
 
-	Game.viewport.addChild(henHouse, bin);
-	envLayer.attach(henHouse, bin);
+	Game.viewport.addChild(henHouse, appleBin, eggBin);
+	envLayer.attach(henHouse, appleBin, eggBin);
 
 	const appleSpawner = new Spawner<Apple>({
 		spawn_rate: 2_000,
 		max: 10,
 		spawnPoint: () => ({
-			x: bin.x + bin.width / 2 + NumberInRange(-800, 500),
-			y: bin.y + bin.height + NumberInRange(0, 500),
+			x: appleBin.x + appleBin.width / 2 + NumberInRange(-800, 500),
+			y: appleBin.y + appleBin.height + NumberInRange(0, 500),
 		}),
 		factory: (position) => new Apple({
 			position,
-			dropTarget: bin,
+			dropTarget: appleBin,
 		}),
 	});
 
@@ -130,7 +137,7 @@ const config: Partial<ApplicationOptions> = {
 		}),
 		factory: (position) => new Clucker({
 			position,
-			dropTarget: henHouse
+			dropTarget: eggBin
 		}),
 	});
 

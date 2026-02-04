@@ -73,8 +73,12 @@
 			"name": "environment",
 			"assets": [
 				{
-					"alias": "barrel",
-					"src": "env/barrel.png"
+					"alias": "barrel_apples",
+					"src": "env/barrel_apples.png"
+				},
+				{
+					"alias": "barrel_eggs",
+					"src": "env/barrel_eggs.png"
 				},
 				{
 					"alias": "fence_horizontal",
