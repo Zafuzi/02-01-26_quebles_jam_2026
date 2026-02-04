@@ -9,6 +9,7 @@ import {
 	Point,
 	type PointData,
 	Rectangle,
+	RenderLayer,
 	Sprite,
 	Ticker,
 	TilingSprite,
@@ -31,6 +32,8 @@ export type EntityOptions = ContainerOptions & {
 	collider?: CollidableEntity;
 	collide?: boolean;
 	debug?: boolean;
+
+	layer?: RenderLayer;
 };
 
 export class Entity extends Container {
@@ -54,6 +57,8 @@ export class Entity extends Container {
 
 	public debugGraphic?: Graphics;
 	public boundTo: Rectangle = new Rectangle(0, 0, 0, 0);
+
+	public layer?: RenderLayer;
 
 	constructor(options: EntityOptions) {
 		super({
@@ -81,6 +86,11 @@ export class Entity extends Container {
 			position: this.position,
 			scale: this.scale,
 		};
+
+		this.layer = options?.layer;
+		if (this.layer) {
+			this.layer.attach(this);
+		}
 
 		this.tickerCallback = (time: Ticker) => {
 			this.renderable = this.alive;

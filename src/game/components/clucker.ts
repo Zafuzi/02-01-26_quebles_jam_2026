@@ -4,6 +4,7 @@ import type { EntitySpriteOptions } from "../../engine/Entity";
 import { Distance, EntitySprite, NumberInRange } from "../../engine/Engine";
 import { Spawner } from "./spawner";
 import { Egg } from "./egg";
+import { pickupLayer } from "../GLOBALS";
 
 export class Clucker extends EntitySprite {
 	private startPos: Point;
@@ -42,6 +43,7 @@ export class Clucker extends EntitySprite {
 				spawner.spawn_rate = NumberInRange(100, 5_000);
 				return new Egg({
 					position,
+					layer: pickupLayer,
 					dropTarget: this.dropTarget,
 				})
 			},

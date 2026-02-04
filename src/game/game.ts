@@ -123,6 +123,7 @@ const config: Partial<ApplicationOptions> = {
 		}),
 		factory: (position) => new Tree({
 			position,
+			layer: envLayer,
 			dropTarget: appleBin,
 		}),
 	});
@@ -134,6 +135,7 @@ const config: Partial<ApplicationOptions> = {
 		}),
 		factory: (position) => new Clucker({
 			position,
+			layer: envLayer,
 			dropTarget: eggBin
 		}),
 	});

@@ -1,9 +1,10 @@
 import type { Entity } from "../../engine/Entity";
 import type { EntitySpriteOptions } from "../../engine/Entity";
-import { EntitySprite, NumberInRange } from "../../engine/Engine";
+import { CoinFlip, EntitySprite, NumberInRange } from "../../engine/Engine";
 import { Spawner } from "./spawner";
 import { Egg } from "./egg";
 import { Apple } from "./apple";
+import { pickupLayer } from "../GLOBALS";
 
 export class Tree extends EntitySprite {
 	public appleSpawner: Spawner<Egg>;
@@ -31,9 +32,14 @@ export class Tree extends EntitySprite {
 				spawner.spawn_rate = NumberInRange(1_000, 5_000);
 				return new Apple({
 					position,
+					layer: pickupLayer,
 					dropTarget: this.dropTarget,
 				})
 			},
 		});
+
+		if (CoinFlip()) {
+			this.appleSpawner.spawn();
+		}
 	}
 }

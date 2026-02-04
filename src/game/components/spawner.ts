@@ -1,7 +1,7 @@
 import { Point, type PointData } from "pixi.js";
 import type { Pickup } from "./pickup";
 import { Entity, EntitySprite, Game } from "../../engine/Engine";
-import { pickupLayer } from "../GLOBALS";
+import { envLayer, pickupLayer } from "../GLOBALS";
 
 type SpawnPoint = PointData | (() => PointData);
 
@@ -53,7 +53,7 @@ export class Spawner<T extends EntitySprite | Pickup> {
 		this.spawns.push(item);
 
 		Game.viewport.addChild(item);
-		pickupLayer.attach(item);
+
 		item.on("destroyed", (destroyed) => {
 			const index = this.spawns.findIndex((s) => s.uid === destroyed.uid);
 
