@@ -19,6 +19,7 @@ export class Clucker extends EntitySprite {
 		super({
 			...options,
 			fileName: "clucker",
+			anchor: 0.5,
 		});
 
 		this.dropTarget = options?.dropTarget;

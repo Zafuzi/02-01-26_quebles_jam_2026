@@ -95,6 +95,10 @@
 				{
 					"alias": "hen_house",
 					"src": "env/hen_house.png"
+				},
+				{
+					"alias": "tree",
+					"src": "env/tree.png"
 				}
 			]
 		},

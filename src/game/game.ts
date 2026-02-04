@@ -12,6 +12,7 @@ import { Clucker } from "./components/clucker";
 import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
 import { Spawner } from "./components/spawner";
+import { Tree } from "./components/tree.ts";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -61,7 +62,7 @@ const config: Partial<ApplicationOptions> = {
 		contrast: 1.3,
 	});
 	Game.viewport.filters = [worldColor];
-	Game.viewport.setZoom(0.8);
+	Game.viewport.setZoom(0.5);
 
 	Game.viewport.addChild(bgLayer, pickupLayer, envLayer, playerLayer);
 
@@ -114,17 +115,13 @@ const config: Partial<ApplicationOptions> = {
 		scale: 1,
 	}
 
-	Game.viewport.addChild(henHouse, appleBin, eggBin);
-	envLayer.attach(henHouse, appleBin, eggBin);
 
-	const appleSpawner = new Spawner<Apple>({
-		spawn_rate: 2_000,
-		max: 10,
+	const treeSpawner = new Spawner<Tree>({
 		spawnPoint: () => ({
-			x: appleBin.x + appleBin.width / 2 + NumberInRange(-800, 500),
-			y: appleBin.y + appleBin.height + NumberInRange(0, 500),
+			x: NumberInRange(-Game.viewport.width, Game.viewport.height),
+			y: NumberInRange(-Game.viewport.width, Game.viewport.height),
 		}),
-		factory: (position) => new Apple({
+		factory: (position) => new Tree({
 			position,
 			dropTarget: appleBin,
 		}),
@@ -141,31 +138,36 @@ const config: Partial<ApplicationOptions> = {
 		}),
 	});
 
-	appleSpawner.spawnMany(5);
+	treeSpawner.spawnMany(5);
 	cluckerSpawner.spawnMany(5);
+
+	Game.viewport.addChild(henHouse, appleBin, eggBin);
+	envLayer.attach(henHouse, appleBin, eggBin);
 
 	let isWon = false;
 	const msg = (globalThis as any).msg;
 
-	const apples = appleSpawner.spawns;
+	const trees = treeSpawner.spawns;
 	const cluckers = cluckerSpawner.spawns;
 
 	Game.ticker.add(() => {
-		apples.forEach((p) => {
-			if (
-				p.alive && p.collide &&
-				(p as Pickup).pickupCooldownMs <= 0 &&
-				player.inventory_lock_timeout <= 0 &&
-				!player.inventory &&
-				collideEntities(player.collider, p.collider)
-			) {
-				pickupLayer.detach(p);
-				player.inventory_lock_timeout = 50;
-				player.inventory = p as Pickup;
+		trees.forEach((tree) => {
+			(tree as Tree).appleSpawner.spawns.forEach(p => {
+				if (
+					p.alive && p.collide &&
+					(p as Pickup).pickupCooldownMs <= 0 &&
+					player.inventory_lock_timeout <= 0 &&
+					!player.inventory &&
+					collideEntities(player.collider, p.collider)
+				) {
+					pickupLayer.detach(p);
+					player.inventory_lock_timeout = 50;
+					player.inventory = p as Pickup;
 
-				msg.classList.add("hid");
-				return;
-			}
+					msg.classList.add("hid");
+					return;
+				}
+			});
 		});
 
 		let eggs = 0;

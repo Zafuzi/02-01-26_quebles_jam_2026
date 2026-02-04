@@ -15,7 +15,7 @@ export type SpawnerOptions<T extends EntitySprite | Pickup> = {
 
 export class Spawner<T extends EntitySprite | Pickup> {
 	private spawnPoint: SpawnPoint;
-	private factory: (position: Point) => T;
+	private factory: (position: Point, spawner: Spawner<T>) => T;
 	public spawns: Entity[] = [];
 	private pickupCooldownMs: number;
 	public spawn_rate: number = 10;
