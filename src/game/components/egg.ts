@@ -3,15 +3,16 @@ import type { EntitySpriteOptions } from "../../engine/Entity";
 import { Score } from "../GLOBALS";
 import { Pickup } from "./pickup";
 
-export class Apple extends Pickup {
+export class Egg extends Pickup {
 	constructor(options?: { dropTarget?: Entity } & Partial<EntitySpriteOptions>) {
 		super({
 			...options,
-			fileName: "apple",
+			fileName: "egg",
+			collide: true,
 		});
 
 		this.on("destroyed", () => {
-			Score.apples++;
+			Score.eggs++;
 		})
 	}
 }

@@ -1,22 +1,22 @@
 import { Point, type PointData } from "pixi.js";
 import type { Pickup } from "./pickup";
-import { Entity, Game } from "../../engine/Engine";
+import { Entity, EntitySprite, Game } from "../../engine/Engine";
 import { pickupLayer } from "../GLOBALS";
 
 type SpawnPoint = PointData | (() => PointData);
 
-export type SpawnerOptions<T extends Pickup> = {
+export type SpawnerOptions<T extends EntitySprite | Pickup> = {
 	spawnPoint: SpawnPoint;
-	factory: (position: Point) => T;
+	factory: (position: Point, spawner: Spawner<T>) => T;
 	pickupCooldownMs?: number;
 	spawn_rate?: number;
 	max?: number;
 };
 
-export class PickupSpawner<T extends Pickup> {
+export class Spawner<T extends EntitySprite | Pickup> {
 	private spawnPoint: SpawnPoint;
 	private factory: (position: Point) => T;
-	public spawns: Pickup[] = [];
+	public spawns: Entity[] = [];
 	private pickupCooldownMs: number;
 	public spawn_rate: number = 10;
 	public max: number = 0;
@@ -45,9 +45,10 @@ export class PickupSpawner<T extends Pickup> {
 
 	spawn(): T {
 		const pos = this.resolvePoint();
-		const item = this.factory(pos);
+		const item = this.factory(pos, this);
+
 		if (this.pickupCooldownMs > 0) {
-			item.pickupCooldownMs = this.pickupCooldownMs;
+			(item as Pickup).pickupCooldownMs = this.pickupCooldownMs;
 		}
 		this.spawns.push(item);
 

@@ -10,4 +10,9 @@ export const LAYERS = {
     pickup: 1,
     env: 2,
     player: 3,
-};
+}
+
+export const Score = {
+    apples: 0,
+    eggs: 0,
+};;

@@ -1,16 +1,19 @@
 import { Point, type Ticker } from "pixi.js";
 import type { Entity } from "../../engine/Entity";
 import type { EntitySpriteOptions } from "../../engine/Entity";
-import { Distance, NumberInRange } from "../../engine/Engine";
-import { Pickup } from "./pickup";
+import { Distance, EntitySprite, NumberInRange } from "../../engine/Engine";
+import { Spawner } from "./spawner";
+import { Egg } from "./egg";
 
-export class Clucker extends Pickup {
+export class Clucker extends EntitySprite {
 	private startPos: Point;
 	private heading: number;
 	private targetHeading: number;
 	private turnRate: number;
 	private changeTimer: number;
 	private pauseTimer: number = 0;
+	public eggSpawner: Spawner<Egg>;
+	private dropTarget: Entity | undefined;
 
 	constructor(options?: { dropTarget?: Entity } & Partial<EntitySpriteOptions>) {
 		super({
@@ -18,20 +21,33 @@ export class Clucker extends Pickup {
 			fileName: "clucker",
 		});
 
+		this.dropTarget = options?.dropTarget;
 		this.startPos = new Point(this.position.x, this.position.y);
 		this.heading = NumberInRange(-Math.PI, Math.PI);
 		this.targetHeading = this.heading;
 		this.speed = NumberInRange(0.25, 0.65);
 		this.turnRate = NumberInRange(0.02, 0.05);
 		this.changeTimer = NumberInRange(30, 120);
+
+		this.eggSpawner = new Spawner({
+			spawn_rate: NumberInRange(100, 5_000),
+			max: 1,
+			spawnPoint: () => ({
+				x: this.x,
+				y: this.y,
+			}),
+			pickupCooldownMs: 500,
+			factory: (position, spawner) => {
+				spawner.spawn_rate = NumberInRange(100, 5_000);
+				return new Egg({
+					position,
+					dropTarget: this.dropTarget,
+				})
+			},
+		});
 	}
 
-	movement = (ticker: Ticker) => {
-		this.updatePickupCooldown(ticker);
-		if (!this.collide) {
-			return;
-		}
-
+	update = (ticker: Ticker) => {
 		const dt = ticker.deltaTime;
 
 		if (this.pauseTimer > 0) {
