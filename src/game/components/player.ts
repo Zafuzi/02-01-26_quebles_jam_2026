@@ -26,6 +26,7 @@ export class Player extends EntitySprite {
 		});
 		this.inventoryMax.set("apple", 4);
 		this.inventoryMax.set("egg", 3);
+		this.inventoryMax.set("clucker", 2);
 	}
 
 	setMovementDirection = (xy: string) => {
