@@ -99,7 +99,6 @@ export class Entity extends Container {
 
 			this.renderable = this.alive;
 
-
 			if (this.update) {
 				this.update(time);
 			}
@@ -265,8 +264,16 @@ export class EntityTilingSprite extends Entity {
 		this.fileName = options.fileName;
 
 		this.sprite.texture = Assets.get(this.fileName);
-		this.sprite.width = options.tileWidth || 0;
-		this.sprite.height = options.tileHeight || 0;
+
+		if (options.tileWidth) {
+			this.sprite.width = options.tileWidth;
+			this.sprite.tileScale.x = this.sprite.width / this.sprite.texture.width;
+		}
+
+		if (options.tileHeight) {
+			this.sprite.height = options.tileHeight;
+			this.sprite.tileScale.y = this.sprite.height / this.sprite.texture.height;
+		}
 
 		if (options.anchor) this.sprite.anchor = options.anchor;
 		this.addChild(this.sprite);

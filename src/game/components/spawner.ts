@@ -22,6 +22,8 @@ export class Spawner<T extends EntitySprite | Pickup> {
 	public max: number = 0;
 	private spawn_timer: number = 0;
 	public onSpawn?: (item: T) => void;
+	private running = true;
+	private respawnTimers: number[] = [];
 
 	static gridPoints(options: {
 		origin: PointData;
@@ -42,14 +44,8 @@ export class Spawner<T extends EntitySprite | Pickup> {
 
 		for (let row = 0; row < options.rows; row++) {
 			for (let col = 0; col < options.cols; col++) {
-				const x =
-					options.origin.x +
-					col * options.spacingX * dirX +
-					(Math.random() * 2 - 1) * jitterX;
-				const y =
-					options.origin.y +
-					row * options.spacingY * dirY +
-					(Math.random() * 2 - 1) * jitterY;
+				const x = options.origin.x + col * options.spacingX * dirX + (Math.random() * 2 - 1) * jitterX;
+				const y = options.origin.y + row * options.spacingY * dirY + (Math.random() * 2 - 1) * jitterY;
 				points.push(new Point(x, y));
 			}
 		}
@@ -69,6 +65,7 @@ export class Spawner<T extends EntitySprite | Pickup> {
 	}
 
 	update = () => {
+		if (!this.running) return;
 		if (this.spawn_timer > this.spawn_rate) {
 			if (this.spawns.length < this.max) {
 				this.spawn();
@@ -105,6 +102,34 @@ export class Spawner<T extends EntitySprite | Pickup> {
 			}
 		});
 		return item;
+	}
+
+	enqueueRespawn(count = 1, minDelayMs = 2_000, maxDelayMs = 6_000) {
+		for (let i = 0; i < count; i++) {
+			const delay = minDelayMs + Math.random() * (maxDelayMs - minDelayMs);
+			const timer = window.setTimeout(() => {
+				if (this.max === 0 || this.spawns.length < this.max) {
+					this.spawn();
+				}
+			}, delay);
+			this.respawnTimers.push(timer);
+		}
+	}
+
+	stop() {
+		if (!this.running) return;
+		this.running = false;
+		Game.ticker.remove(this.update);
+		for (const timer of this.respawnTimers) {
+			clearTimeout(timer);
+		}
+		this.respawnTimers = [];
+	}
+
+	start() {
+		if (this.running) return;
+		this.running = true;
+		Game.ticker.add(this.update);
 	}
 
 	spawnMany(count: number): T[] {

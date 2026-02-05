@@ -14,6 +14,6 @@ export class Egg extends Pickup {
 			body: 30,
 			position: this.position,
 			scale: 1,
-		}
+		};
 	}
 }

@@ -2,7 +2,7 @@ import { initDevtools } from "@pixi/devtools";
 import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
 import { Assets, Point, type ApplicationOptions } from "pixi.js";
-import { Game, InputMoveAction, LocationAround, NumberInRange, PlayerInteract } from "../engine/Engine.ts";
+import { Game, InputMoveAction, LocationAround, PlayerInteract } from "../engine/Engine.ts";
 import { bgLayer, envLayer, Score } from "./GLOBALS.ts";
 import { Background } from "./components/background.ts";
 import { Bin } from "./components/bin.ts";
@@ -60,11 +60,12 @@ const config: Partial<ApplicationOptions> = {
 		contrast: 1.3,
 	});
 	Game.viewport.filters = [worldColor];
-	Game.viewport.setZoom(0.3);
-	Game.viewport.clampZoom({
-		minScale: 0.3,
-		maxScale: 2,
-	})
+	Game.viewport.setZoom(0.4);
+	Game.viewport
+		.clampZoom({
+			minScale: 0.4,
+			maxScale: 2,
+		})
 		.wheel({
 			smooth: 100,
 			interrupt: true,
@@ -74,7 +75,6 @@ const config: Partial<ApplicationOptions> = {
 			trackpadPinch: true,
 			wheelZoom: true,
 		})
-		.drag()
 		.pinch()
 		.decelerate();
 
@@ -143,15 +143,27 @@ const config: Partial<ApplicationOptions> = {
 	});
 
 	const cluckerSpawner = new Spawner<Clucker>({
+		pickupCooldownMs: 500,
+		spawn_rate: 2_000,
+		max: 2,
 		spawnPoint: () => LocationAround(henHouse.position, 100, 800),
-		factory: (position) =>
-			new Clucker({
+		factory: (position) => {
+			const clucker = new Clucker({
 				position,
 				layer: envLayer,
-				dropTarget: eggBin,
-			}),
+				dropTarget: henHouse,
+				spawnerDropTarget: eggBin,
+			});
+			player.registerPickup(clucker);
+
+			return clucker;
+		},
 	});
 
+	player.setDropTarget("clucker", henHouse, (count) => {
+		Score.cluckers += count;
+		cluckerSpawner.enqueueRespawn(count, 3_000, 9_000);
+	});
 	player.setDropTarget("apple", appleBin, (count) => {
 		Score.apples += count;
 	});
@@ -159,21 +171,13 @@ const config: Partial<ApplicationOptions> = {
 		Score.eggs += count;
 	});
 
-	cluckerSpawner.spawnMany(5);
-	treeSpawner.spawnManyAt(Spawner.gridPoints({
-		origin: new Point(-300, 900),
-		cols: 3,
-		rows: 3,
-		spacingX: 600,
-		spacingY: 300,
-		dirX: 1,
-		dirY: 1,
-	}));
-
 	Game.viewport.addChild(henHouse, appleBin, eggBin);
 
 	let isWon = false;
 	const msg = (globalThis as any).msg;
+	const dbgState = (globalThis as any).dbg_state;
+	const scoreApples = (globalThis as any).score_apples;
+	const scoreEggs = (globalThis as any).score_eggs;
 
 	const trees = treeSpawner.spawns;
 	const cluckers = cluckerSpawner.spawns;
@@ -194,6 +198,23 @@ const config: Partial<ApplicationOptions> = {
 	trees.forEach((tree) => registerAppleSpawner(tree as Tree));
 	cluckers.forEach((clucker) => registerEggSpawner(clucker as Clucker));
 
+	// -- KEEP HERE --
+	cluckerSpawner.spawnMany(2);
+	treeSpawner.spawnManyAt(
+		Spawner.gridPoints({
+			origin: new Point(-300, 900),
+			cols: 20,
+			rows: 20,
+			spacingX: 600,
+			spacingY: 600,
+			jitterX: 400,
+			jitterY: 400,
+			dirX: 1,
+			dirY: 1,
+		}),
+	);
+	// -- KEEP HERE --
+
 	Game.ticker.add(() => {
 		if (!isWon && Score.apples >= 10 && Score.eggs >= 10) {
 			isWon = true;
@@ -202,18 +223,25 @@ const config: Partial<ApplicationOptions> = {
 			msg.innerHTML = "<h1 class='blue'>You Win!</h1>";
 		}
 
-		(globalThis as any).dbg_state.innerHTML = `
+		const apples = player.inventoryCounts.get("apple") ?? 0;
+		const eggs = player.inventoryCounts.get("egg") ?? 0;
+		const maxApples = player.inventoryMax.get("apple") ?? 0;
+		const maxEggs = player.inventoryMax.get("egg") ?? 0;
+		const inventorySummary = player.getInventorySummary() || "empty";
+
+		dbgState.innerHTML = `
 			<h2> State </h2>
 			<div>
 				<h3> Player </h3>
 				<p>PosX: ${Math.round(player.position.x)}, PosY: ${Math.round(player.position.y)}</p>
-				<p>Score: Apples ${Score.apples}, Eggs ${Score.eggs}</p>
+				<p>Inventory: ${inventorySummary}</p>
+				<p>Apples: ${apples} / ${maxApples}</p>
+				<p>Eggs: ${eggs} / ${maxEggs}</p>
 			</div>
 		`;
 
-		(globalThis as any).inventory_apples.innerHTML = player.inventoryCounts.get("apple") ?? 0;
-
-		(globalThis as any).inventory_eggs.innerHTML = player.inventoryCounts.get("egg") ?? 0;
+		scoreApples.innerHTML = Score.apples;
+		scoreEggs.innerHTML = Score.eggs;
 
 		InputMoveAction.update();
 		PlayerInteract.update();
@@ -221,9 +249,9 @@ const config: Partial<ApplicationOptions> = {
 	});
 
 	Game.viewport.follow(player, {
-		speed: 0.8,
-		acceleration: 0.2,
-		radius: 40,
+		speed: 1,
+		acceleration: 0.5,
+		radius: 10,
 	});
 
 	let resizeDebounce: number;

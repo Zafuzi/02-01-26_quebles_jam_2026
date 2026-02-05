@@ -1,27 +1,31 @@
 import { Assets, Point, Sprite, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision.ts";
-import { Clamp, EntitySprite, Game, InputMoveAction, normalize } from "../../engine/Engine.ts";
+import { Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
 import { envLayer } from "../GLOBALS.ts";
 import type { Entity } from "../../engine/Entity";
 import type { Pickup } from "./pickup.ts";
 
-export type PlayerInventoryTypes = "apple" | "egg";
+export type PlayerInventoryTypes = "apple" | "egg" | "clucker";
 export class Player extends EntitySprite {
 	public inventoryCounts: Map<PlayerInventoryTypes, number> = new Map();
+	public inventoryMax: Map<PlayerInventoryTypes, number> = new Map();
+
 	public inventoryLockTimeout: number = 0;
 	private pickupCandidates: Set<Pickup> = new Set();
 	private dropTargets: Map<string, { target: Entity; onDrop?: (count: number) => void }> = new Map();
-	private inventoryIcons: Map<PlayerInventoryTypes, EntitySprite> = new Map();
+	private inventoryIcons: Map<PlayerInventoryTypes, Sprite[]> = new Map();
 
 	constructor() {
 		super({
 			fileName: "b_s",
 			position: new Point(250, 250),
-			speed: 8,
+			speed: 12,
 			collide: true,
 			anchor: 0.5,
 			layer: envLayer,
 		});
+		this.inventoryMax.set("apple", 4);
+		this.inventoryMax.set("egg", 3);
 	}
 
 	setMovementDirection = (xy: string) => {
@@ -67,9 +71,14 @@ export class Player extends EntitySprite {
 		this.updateInventoryIcons();
 	};
 
-	addToInventory = (item: Pickup): void => {
+	addToInventory = (item: Pickup): boolean => {
 		const current = this.inventoryCounts.get(item.fileName as PlayerInventoryTypes) ?? 0;
+		const max = this.inventoryMax.get(item.fileName as PlayerInventoryTypes) ?? Number.POSITIVE_INFINITY;
+
+		if (current >= max) return false;
+
 		this.inventoryCounts.set(item.fileName as PlayerInventoryTypes, current + 1);
+		return true;
 	};
 
 	registerPickup = (item: Pickup) => {
@@ -130,45 +139,82 @@ export class Player extends EntitySprite {
 
 	private collect(item: Pickup) {
 		this.inventoryLockTimeout = 50;
-		this.addToInventory(item);
-		this.unregisterPickup(item);
-		item.destroy();
+		if (this.addToInventory(item)) {
+			this.unregisterPickup(item);
+			item.destroy();
+		}
 	}
 
 	private updateInventoryIcons() {
-		const self = this;
+		const instance = this;
 		const activeTypes = Array.from(this.inventoryCounts.entries())
 			.filter(([, count]) => count > 0)
 			.map(([name]) => name);
 
-		for (const [name, icon] of this.inventoryIcons.entries()) {
-			icon.visible = activeTypes.includes(name);
+		const iconGap = 6;
+		const stackGap = 4;
+		const baseY = -instance.sprite.height / 2 - 6;
+
+		const totalWidth =
+			activeTypes.reduce((sum, name) => {
+				const tex = Assets.get(name);
+				return sum + (tex?.width ?? 0);
+			}, 0) +
+			Math.max(0, activeTypes.length - 1) * iconGap;
+
+		let cursorX = -totalWidth / 2;
+
+		for (const [name, icons] of this.inventoryIcons.entries()) {
+			const count = this.inventoryCounts.get(name) ?? 0;
+			if (count > 0) continue;
+			for (const icon of icons) {
+				this.removeChild(icon);
+				icon.destroy();
+			}
+			this.inventoryIcons.delete(name);
 		}
 
-		let cursorX = 0;
 		for (const name of activeTypes) {
-			const icon = this.ensureInventoryIcon(name);
-			icon.position.x = cursorX
-			icon.position.y = -self.height / 2;
-			cursorX += icon.width;
+			const tex = Assets.get(name);
+			if (!tex) continue;
+
+			const count = this.inventoryCounts.get(name) ?? 0;
+			const icons = this.ensureInventoryIcons(name, count);
+
+			while (icons.length > count) {
+				const icon = icons.pop();
+				if (!icon) break;
+				this.removeChild(icon);
+				icon.destroy();
+			}
+
+			for (let i = 0; i < icons.length; i++) {
+				const icon = icons[i];
+				icon.visible = true;
+				icon.position.x = cursorX + tex.width / 2;
+				icon.position.y = baseY - i * (tex.height + stackGap);
+			}
+
+			cursorX += tex.width + iconGap;
 		}
 	}
 
-	private ensureInventoryIcon(name: PlayerInventoryTypes): EntitySprite {
-		const existing = this.inventoryIcons.get(name);
-		if (existing) return existing;
+	private ensureInventoryIcons(name: PlayerInventoryTypes, count: number): Sprite[] {
+		let icons = this.inventoryIcons.get(name);
+		if (!icons) {
+			icons = [];
+			this.inventoryIcons.set(name, icons);
+		}
 
-		const icon = new EntitySprite({
-			fileName: name,
-			position: new Point(0, 0),
-			anchor: 0.5,
-			visible: true,
-		});
+		while (icons.length < count) {
+			const icon = new Sprite(Assets.get(name));
+			icon.anchor.set(0.5, 1);
+			icon.visible = false;
+			this.addChild(icon);
+			icons.push(icon);
+		}
 
-		this.addChild(icon);
-		this.inventoryIcons.set(name, icon);
-
-		return icon;
+		return icons;
 	}
 
 	getInventorySummary(): string {
@@ -176,5 +222,4 @@ export class Player extends EntitySprite {
 			.map(([name, count]) => `${name}:${count}`)
 			.join(", ");
 	}
-
 }

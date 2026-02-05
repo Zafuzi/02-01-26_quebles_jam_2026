@@ -5,6 +5,7 @@ export const envLayer = new RenderLayer();
 envLayer.sortableChildren = true;
 
 export const Score = {
-    apples: 0,
-    eggs: 0,
+	apples: 0,
+	eggs: 0,
+	cluckers: 0,
 };

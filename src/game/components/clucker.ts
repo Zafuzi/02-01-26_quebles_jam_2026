@@ -1,12 +1,13 @@
 import { Point, type Ticker } from "pixi.js";
-import type { Entity } from "../../engine/Entity";
-import type { EntitySpriteOptions } from "../../engine/Entity";
-import { CoinFlip, Distance, EntitySprite, NumberInRange } from "../../engine/Engine";
-import { Spawner } from "./spawner";
-import { Egg } from "./egg";
+import { collideEntities } from "../../engine/Collision";
+import { Distance, NumberInRange } from "../../engine/Engine";
+import type { Entity, EntitySpriteOptions } from "../../engine/Entity";
 import { envLayer } from "../GLOBALS";
+import { Egg } from "./egg";
+import { Pickup } from "./pickup";
+import { Spawner } from "./spawner";
 
-export class Clucker extends EntitySprite {
+export class Clucker extends Pickup {
 	private startPos: Point;
 	private heading: number;
 	private targetHeading: number;
@@ -14,26 +15,27 @@ export class Clucker extends EntitySprite {
 	private changeTimer: number;
 	private pauseTimer: number = 0;
 	public eggSpawner: Spawner<Egg>;
-	private dropTarget: Entity | undefined;
+	public spawnerDropTarget: Entity | undefined;
 
-	constructor(options?: { dropTarget?: Entity } & Partial<EntitySpriteOptions>) {
+	constructor(options?: { dropTarget: Entity; spawnerDropTarget: Entity } & Partial<EntitySpriteOptions>) {
 		super({
 			...options,
 			fileName: "clucker",
 			anchor: 0.5,
+			collide: true,
 		});
 
-		this.dropTarget = options?.dropTarget;
 		this.startPos = new Point(this.position.x, this.position.y);
 		this.heading = NumberInRange(-Math.PI, Math.PI);
 		this.targetHeading = this.heading;
 		this.speed = NumberInRange(0.25, 0.65);
 		this.turnRate = NumberInRange(0.02, 0.05);
 		this.changeTimer = NumberInRange(30, 120);
+		this.spawnerDropTarget = options?.spawnerDropTarget;
 
 		this.eggSpawner = new Spawner({
 			spawn_rate: NumberInRange(100, 5_000),
-			max: 1,
+			max: 10,
 			spawnPoint: () => ({
 				x: this.x,
 				y: this.y,
@@ -44,17 +46,14 @@ export class Clucker extends EntitySprite {
 				return new Egg({
 					position,
 					layer: envLayer,
-					dropTarget: this.dropTarget,
+					dropTarget: this.spawnerDropTarget,
 				});
 			},
 		});
-
-		if (CoinFlip()) {
-			this.eggSpawner.spawn();
-		}
 	}
 
 	update = (ticker: Ticker) => {
+		this.updatePickupCooldown(ticker);
 		const dt = ticker.deltaTime;
 
 		if (this.pauseTimer > 0) {
@@ -89,4 +88,21 @@ export class Clucker extends EntitySprite {
 		this.x += Math.cos(this.heading) * this.speed * dt;
 		this.y += Math.sin(this.heading) * this.speed * dt;
 	};
+
+	drop = () => {
+		if (!this.dropTarget || !collideEntities(this.dropTarget.collider, this.collider)) {
+			return;
+		}
+
+		this.position.set(this.dropTarget.position.x, this.dropTarget.position.y);
+		this.startPos = new Point(this.position.x, this.position.y);
+
+		// Pause wandering at the hen house, then resume after a random delay.
+		this.pauseTimer = NumberInRange(180, 600);
+	};
+
+	destroy(): void {
+		this.eggSpawner.stop();
+		super.destroy();
+	}
 }

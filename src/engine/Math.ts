@@ -1,4 +1,4 @@
-import { DEG_TO_RAD, Point, type PointData } from "pixi.js";
+import { Point, type PointData } from "pixi.js";
 
 export function NumberInRange(min: number, max: number): number {
 	return Math.random() * (max - min) + min;
