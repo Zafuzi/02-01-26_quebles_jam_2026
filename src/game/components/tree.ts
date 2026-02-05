@@ -21,13 +21,12 @@ export class Tree extends EntitySprite {
 		this.dropTarget = options?.dropTarget;
 
 		this.appleSpawner = new Spawner({
-			spawn_rate: NumberInRange(5_000, 10_000),
+			spawn_rate: NumberInRange(0, 10_000),
 			max: 2,
 			spawnPoint: () => LocationAround(this.position, 10, 100),
 
 			pickupCooldownMs: 500,
-			factory: (position, spawner) => {
-				spawner.spawn_rate = NumberInRange(5_000, 10_000);
+			factory: (position) => {
 				return new Apple({
 					position,
 					layer: envLayer,
@@ -35,5 +34,9 @@ export class Tree extends EntitySprite {
 				});
 			},
 		});
+
+		if (Math.round(NumberInRange(0, 10)) === 3) {
+			this.appleSpawner.spawn();
+		}
 	}
 }
