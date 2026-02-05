@@ -202,13 +202,13 @@ const config: Partial<ApplicationOptions> = {
 	cluckerSpawner.spawnMany(2);
 	treeSpawner.spawnManyAt(
 		Spawner.gridPoints({
-			origin: new Point(-900, 900),
-			cols: 5,
-			rows: 5,
+			origin: new Point(-400, 600),
+			cols: 3,
+			rows: 3,
 			spacingX: 600,
 			spacingY: 600,
-			jitterX: 20,
-			jitterY: 20,
+			jitterX: 200,
+			jitterY: 200,
 			dirX: 1,
 			dirY: 1,
 		}),
