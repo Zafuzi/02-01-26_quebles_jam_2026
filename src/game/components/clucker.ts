@@ -35,6 +35,9 @@ export class Clucker extends Pickup {
 		this.changeTimer = NumberInRange(30, 120);
 		this.spawnerDropTarget = options?.spawnerDropTarget;
 
+		const spawnSound = Sound.from(Assets.get("lay_egg"));
+		const pickupSound = Sound.from(Assets.get("pickup"));
+
 		this.eggSpawner = new Spawner({
 			spawn_rate: NumberInRange(100, 5_000),
 			max: 10,
@@ -45,11 +48,16 @@ export class Clucker extends Pickup {
 			pickupCooldownMs: 500,
 			factory: (position, spawner) => {
 				spawner.spawn_rate = NumberInRange(100, 5_000);
-				return new Egg({
+				const egg = new Egg({
 					position,
 					layer: envLayer,
 					dropTarget: this.spawnerDropTarget,
 				});
+
+				egg.spawnSound = spawnSound;
+				egg.pickupSound = pickupSound;
+
+				return egg;
 			},
 		});
 	}

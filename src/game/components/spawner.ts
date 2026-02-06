@@ -1,6 +1,6 @@
 import { Point, type PointData } from "pixi.js";
 import type { Pickup } from "./pickup";
-import { Entity, EntitySprite, Game } from "../../engine/Engine";
+import { Entity, EntitySprite, Game, NumberInRange } from "../../engine/Engine";
 
 type SpawnPoint = PointData | (() => PointData);
 
@@ -90,17 +90,17 @@ export class Spawner<T extends EntitySprite | Pickup> {
 
 		Game.viewport.addChild(item);
 
+		const spawnSound = (item as Pickup)?.spawnSound;
+		if (spawnSound && spawnSound.isPlayable) {
+			spawnSound.play({
+				speed: NumberInRange(0.9, 1.1),
+			});
+		}
+
 		if (this.onSpawn) {
 			this.onSpawn(item);
 		}
 
-		item.on("destroyed", (destroyed) => {
-			const index = this.spawns.findIndex((s) => s.uid === destroyed.uid);
-
-			if (index >= 0) {
-				this.spawns.splice(index, 1);
-			}
-		});
 		return item;
 	}
 

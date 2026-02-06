@@ -1,4 +1,3 @@
-import { Sound } from "@pixi/sound";
 import { Assets, Point, Sprite, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision.ts";
 import { Clamp, EntitySprite, InputMoveAction, normalize, NumberInRange } from "../../engine/Engine.ts";
@@ -15,8 +14,6 @@ export class Player extends EntitySprite {
 	private pickupCandidates: Set<Pickup> = new Set();
 	private dropTargets: Map<string, { target: Entity; onDrop?: (count: number) => void }> = new Map();
 	private inventoryIcons: Map<PlayerInventoryTypes, Sprite[]> = new Map();
-	private pickupSound = Sound.from(Assets.get("pickup"));
-	private dropSound = Sound.from(Assets.get("drop"));
 
 	constructor() {
 		super({
@@ -82,6 +79,10 @@ export class Player extends EntitySprite {
 		if (current >= max) return false;
 
 		this.inventoryCounts.set(item.fileName as PlayerInventoryTypes, current + 1);
+		item.pickupSound?.play({
+			speed: NumberInRange(0.8, 1.1),
+		});
+
 		return true;
 	};
 
@@ -117,9 +118,6 @@ export class Player extends EntitySprite {
 			const count = this.inventoryCounts.get(fileName as PlayerInventoryTypes) ?? 0;
 			if (count <= 0) continue;
 			if (collideEntities(this.collider, config.target.collider)) {
-				this.dropSound.play({
-					speed: NumberInRange(0.8, 1),
-				});
 				this.inventoryCounts.set(fileName as PlayerInventoryTypes, 0);
 				this.inventoryLockTimeout = 50;
 				config.onDrop?.(count);
@@ -147,9 +145,6 @@ export class Player extends EntitySprite {
 	private collect(item: Pickup) {
 		this.inventoryLockTimeout = 50;
 		if (this.addToInventory(item)) {
-			this.pickupSound.play({
-				speed: NumberInRange(1, 1.1),
-			});
 			this.unregisterPickup(item);
 			item.destroy();
 		}

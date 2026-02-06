@@ -1,12 +1,16 @@
-import { Point } from "pixi.js";
+import { Assets, Point } from "pixi.js";
 import { CoinFlip, EntitySprite, LocationAround, NumberInRange } from "../../engine/Engine";
 import type { Entity, EntitySpriteOptions } from "../../engine/Entity";
 import { envLayer } from "../GLOBALS";
 import { Apple } from "./apple";
 import { Egg } from "./egg";
 import { Spawner } from "./spawner";
+import { Sound } from "@pixi/sound";
 
 export class Tree extends EntitySprite {
+	private spawnSound: Sound = Sound.from(Assets.get("something"));
+	private pickupSound: Sound = Sound.from(Assets.get("pickup"));
+
 	public appleSpawner: Spawner<Egg>;
 	private dropTarget: Entity | undefined;
 
@@ -27,11 +31,16 @@ export class Tree extends EntitySprite {
 
 			pickupCooldownMs: 500,
 			factory: (position) => {
-				return new Apple({
+				const apple = new Apple({
 					position,
 					layer: envLayer,
 					dropTarget: this.dropTarget,
 				});
+
+				apple.pickupSound = this.pickupSound;
+				apple.spawnSound = this.spawnSound;
+
+				return apple;
 			},
 		});
 

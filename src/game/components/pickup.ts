@@ -1,17 +1,29 @@
+import { Sound } from "@pixi/sound";
 import { Point, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
 import { Entity, EntitySprite, type EntitySpriteOptions } from "../../engine/Entity";
-import { Clamp } from "../../engine/Math";
+import { Clamp, NumberInRange } from "../../engine/Math";
 import { envLayer } from "../GLOBALS";
 
 export class Pickup extends EntitySprite {
+	public pickupSound: Sound | undefined;
+	public dropSound: Sound | undefined;
+	public spawnSound: Sound | undefined;
 	public isBeingHeld: boolean = false;
 	public dropTarget: Entity | null = null;
 	public pickupCooldownMs: number = 0;
 	private alphaTarget: number = 1;
 	public movement: null | ((...args: any[]) => void) = null;
 
-	constructor(options?: { dropTarget?: Entity; pickupCooldownMs?: number } & EntitySpriteOptions) {
+	constructor(
+		options?: {
+			dropTarget?: Entity;
+			pickupCooldownMs?: number;
+			dropSound?: Sound;
+			pickupSound?: Sound;
+			spawnSound?: Sound;
+		} & EntitySpriteOptions,
+	) {
 		super({
 			...options,
 			fileName: options?.fileName ?? "apple",
@@ -22,11 +34,17 @@ export class Pickup extends EntitySprite {
 			layer: envLayer,
 		});
 
-		if (options?.dropTarget) {
-			this.dropTarget = options?.dropTarget as Entity;
-		}
-		if (options?.pickupCooldownMs) {
-			this.pickupCooldownMs = options.pickupCooldownMs;
+		if (options) {
+			if (options.dropTarget) {
+				this.dropTarget = options?.dropTarget as Entity;
+			}
+			if (options.pickupCooldownMs) {
+				this.pickupCooldownMs = options.pickupCooldownMs;
+			}
+
+			this.dropSound = options.dropSound;
+			this.pickupSound = options.pickupSound;
+			this.spawnSound = options.spawnSound;
 		}
 	}
 
@@ -45,7 +63,6 @@ export class Pickup extends EntitySprite {
 		}
 
 		if (this.alpha === this.alphaTarget && !this.collide) {
-			console.log("die");
 			this.alive = false;
 			this.debug = false;
 			this.destroy();
@@ -57,10 +74,11 @@ export class Pickup extends EntitySprite {
 	};
 
 	drop = () => {
-		if (this.dropTarget && collideEntities(this.dropTarget.collider, this.collider)) {
-			this.alphaTarget = 0;
-			this.collide = false;
-		}
+		this.dropSound?.play({
+			speed: NumberInRange(0.9, 1.1),
+		});
+		this.alphaTarget = 0;
+		this.collide = false;
 	};
 
 	protected updatePickupCooldown(ticker: Ticker) {

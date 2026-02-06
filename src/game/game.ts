@@ -3,6 +3,7 @@ import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
 import { Assets, Point, type ApplicationOptions } from "pixi.js";
 import { Game, InputMoveAction, LocationAround, PlayerInteract } from "../engine/Engine.ts";
+import { MusicPlayer } from "../engine/MusicPlayer.ts";
 import { bgLayer, envLayer, Score } from "./GLOBALS.ts";
 import { Background } from "./components/background.ts";
 import { Bin } from "./components/bin.ts";
@@ -11,8 +12,7 @@ import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
 import { Spawner } from "./components/spawner";
 import { Tree } from "./components/tree.ts";
-import { MusicPlayer } from "../engine/MusicPlayer.ts";
-import { sound } from "@pixi/sound";
+import { Sound } from "@pixi/sound";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -163,10 +163,13 @@ const config: Partial<ApplicationOptions> = {
 				}),
 		});
 
+		const cluckerSpawnSound = Sound.from(Assets.get("cluck"));
+		const cluckerPickupSound = Sound.from(Assets.get("squawk"));
+
 		const cluckerSpawner = new Spawner<Clucker>({
 			pickupCooldownMs: 500,
-			spawn_rate: 2_000,
-			max: 2,
+			spawn_rate: 500,
+			max: 8,
 			spawnPoint: () => LocationAround(henHouse.position, 100, 800),
 			factory: (position) => {
 				const clucker = new Clucker({
@@ -175,21 +178,28 @@ const config: Partial<ApplicationOptions> = {
 					dropTarget: henHouse,
 					spawnerDropTarget: eggBin,
 				});
+
+				clucker.spawnSound = cluckerSpawnSound;
+				clucker.pickupSound = cluckerPickupSound;
 				player.registerPickup(clucker);
 
 				return clucker;
 			},
 		});
 
+		const thump: Sound = Sound.from(Assets.get("apple_drop"));
 		player.setDropTarget("clucker", henHouse, (count) => {
 			Score.cluckers += count;
 			cluckerSpawner.enqueueRespawn(count, 3_000, 9_000);
+			thump.play();
 		});
 		player.setDropTarget("apple", appleBin, (count) => {
 			Score.apples += count;
+			thump.play();
 		});
 		player.setDropTarget("egg", eggBin, (count) => {
 			Score.eggs += count;
+			thump.play();
 		});
 
 		Game.viewport.addChild(henHouse, appleBin, eggBin);

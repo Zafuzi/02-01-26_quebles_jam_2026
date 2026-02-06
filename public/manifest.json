@@ -152,16 +152,32 @@
 					"src": "sounds/pickup.wav"
 				},
 				{
-					"alias": "drop",
-					"src": "sounds/drop.wav"
+					"alias": "apple_drop",
+					"src": "sounds/thump.ogg"
 				},
 				{
 					"alias": "cluck",
+					"src": "sounds/a_cluck.m4a"
+				},
+				{
+					"alias": "clucking",
 					"src": "sounds/clucking.m4a"
 				},
 				{
 					"alias": "squawk",
 					"src": "sounds/chicken_squawk.m4a"
+				},
+				{
+					"alias": "something",
+					"src": "sounds/something.ogg"
+				},
+				{
+					"alias": "lay_egg",
+					"src": "sounds/lay_egg.ogg"
+				},
+				{
+					"alias": "sound3",
+					"src": "sounds/sound3.ogg"
 				}
 			]
 		}
