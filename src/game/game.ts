@@ -52,8 +52,6 @@ const config: Partial<ApplicationOptions> = {
 		(globalThis as any).loading.classList.add("hid");
 		(globalThis as any).content.classList.remove("hid");
 
-		music.next({ crossfadeMs: 1500 });
-
 		setTimeout(() => {
 			(globalThis as any).loading.style.display = "none";
 		}, 400);
@@ -277,6 +275,14 @@ const config: Partial<ApplicationOptions> = {
 			acceleration: 0.5,
 			radius: 10,
 		});
+
+		window.addEventListener(
+			"click",
+			() => {
+				music.next({ crossfadeMs: 2_000 });
+			},
+			{ once: true },
+		);
 
 		let resizeDebounce: number;
 		window.addEventListener("resize", () => {

@@ -1,10 +1,10 @@
+import { Sound } from "@pixi/sound";
 import { Assets, Point, Sprite, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision.ts";
 import { Clamp, EntitySprite, InputMoveAction, normalize, NumberInRange } from "../../engine/Engine.ts";
-import { envLayer } from "../GLOBALS.ts";
 import type { Entity } from "../../engine/Entity";
+import { envLayer } from "../GLOBALS.ts";
 import type { Pickup } from "./pickup.ts";
-import { filters, Sound, sound, SoundLibrary } from "@pixi/sound";
 
 export type PlayerInventoryTypes = "apple" | "egg" | "clucker";
 export class Player extends EntitySprite {
@@ -28,8 +28,8 @@ export class Player extends EntitySprite {
 			layer: envLayer,
 		});
 		this.inventoryMax.set("apple", 4);
-		this.inventoryMax.set("egg", 3);
-		this.inventoryMax.set("clucker", 2);
+		this.inventoryMax.set("egg", 6);
+		this.inventoryMax.set("clucker", 1);
 	}
 
 	setMovementDirection = (xy: string) => {
