@@ -143,6 +143,19 @@
 					"src": "music/lvl 4 (the desert).ogg"
 				}
 			]
+		},
+		{
+			"name": "sounds",
+			"assets": [
+				{
+					"alias": "pickup",
+					"src": "sounds/pickup.wav"
+				},
+				{
+					"alias": "drop",
+					"src": "sounds/drop.wav"
+				}
+			]
 		}
 	]
 }

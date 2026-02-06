@@ -4,6 +4,7 @@ import { Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/En
 import { envLayer } from "../GLOBALS.ts";
 import type { Entity } from "../../engine/Entity";
 import type { Pickup } from "./pickup.ts";
+import { Sound, sound, SoundLibrary } from "@pixi/sound";
 
 export type PlayerInventoryTypes = "apple" | "egg" | "clucker";
 export class Player extends EntitySprite {
@@ -14,6 +15,8 @@ export class Player extends EntitySprite {
 	private pickupCandidates: Set<Pickup> = new Set();
 	private dropTargets: Map<string, { target: Entity; onDrop?: (count: number) => void }> = new Map();
 	private inventoryIcons: Map<PlayerInventoryTypes, Sprite[]> = new Map();
+	private pickupSound = Sound.from(Assets.get("pickup"));
+	private dropSound = Sound.from(Assets.get("drop"));
 
 	constructor() {
 		super({
@@ -114,6 +117,7 @@ export class Player extends EntitySprite {
 			const count = this.inventoryCounts.get(fileName as PlayerInventoryTypes) ?? 0;
 			if (count <= 0) continue;
 			if (collideEntities(this.collider, config.target.collider)) {
+				this.dropSound.play();
 				this.inventoryCounts.set(fileName as PlayerInventoryTypes, 0);
 				this.inventoryLockTimeout = 50;
 				config.onDrop?.(count);
@@ -141,6 +145,7 @@ export class Player extends EntitySprite {
 	private collect(item: Pickup) {
 		this.inventoryLockTimeout = 50;
 		if (this.addToInventory(item)) {
+			this.pickupSound.play();
 			this.unregisterPickup(item);
 			item.destroy();
 		}

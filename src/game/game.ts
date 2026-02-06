@@ -12,6 +12,7 @@ import { Player } from "./components/player.ts";
 import { Spawner } from "./components/spawner";
 import { Tree } from "./components/tree.ts";
 import { MusicPlayer } from "../engine/MusicPlayer.ts";
+import { sound } from "@pixi/sound";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -37,8 +38,9 @@ const config: Partial<ApplicationOptions> = {
 	await Assets.loadBundle("environment");
 	await Assets.loadBundle("pickups");
 	await Assets.loadBundle("bot");
+	await Assets.loadBundle("sounds");
 	const music = new MusicPlayer(await Assets.loadBundle("music"), {
-		trackOrder: ["music_001", "music_000", "music_002", "music_003", "music_004"],
+		trackOrder: ["music_003", "music_001", "music_002", "music_000", "music_004"],
 		fadeInMs: 1000,
 		fadeOutMs: 800,
 		crossfadeMs: 1200,
@@ -293,5 +295,5 @@ const config: Partial<ApplicationOptions> = {
 				});
 			}, 300);
 		});
-	}, 3_000);
+	}, 300);
 })();
