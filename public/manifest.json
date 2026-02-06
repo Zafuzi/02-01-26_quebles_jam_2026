@@ -158,6 +158,10 @@
 				{
 					"alias": "cluck",
 					"src": "sounds/clucking.m4a"
+				},
+				{
+					"alias": "squawk",
+					"src": "sounds/chicken_squawk.m4a"
 				}
 			]
 		}
