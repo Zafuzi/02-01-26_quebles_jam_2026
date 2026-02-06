@@ -239,6 +239,7 @@ const config: Partial<ApplicationOptions> = {
 		// -- KEEP HERE --
 
 		Game.ticker.add(() => {
+			Game.tick++;
 			if (!isWon && Score.apples >= 10 && Score.eggs >= 10) {
 				isWon = true;
 

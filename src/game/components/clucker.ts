@@ -1,11 +1,12 @@
-import { Point, type Ticker } from "pixi.js";
+import { Assets, Point, type Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision";
-import { Distance, NumberInRange } from "../../engine/Engine";
+import { Distance, Game, NumberInRange } from "../../engine/Engine";
 import type { Entity, EntitySpriteOptions } from "../../engine/Entity";
 import { envLayer } from "../GLOBALS";
 import { Egg } from "./egg";
 import { Pickup } from "./pickup";
 import { Spawner } from "./spawner";
+import { filters, Sound } from "@pixi/sound";
 
 export class Clucker extends Pickup {
 	private startPos: Point;
@@ -16,6 +17,7 @@ export class Clucker extends Pickup {
 	private pauseTimer: number = 0;
 	public eggSpawner: Spawner<Egg>;
 	public spawnerDropTarget: Entity | undefined;
+	public cluckingSound: Sound = Sound.from(Assets.get("cluck"));
 
 	constructor(options?: { dropTarget: Entity; spawnerDropTarget: Entity } & Partial<EntitySpriteOptions>) {
 		super({
@@ -50,11 +52,20 @@ export class Clucker extends Pickup {
 				});
 			},
 		});
+
+		setInterval(() => {}, NumberInRange(2_000, 30_000));
 	}
 
 	update = (ticker: Ticker) => {
 		this.updatePickupCooldown(ticker);
 		const dt = ticker.deltaTime;
+
+		if (!this.cluckingSound.isPlaying && Game.tick % Math.round(NumberInRange(500, 10_000)) === 0) {
+			this.cluckingSound.play({
+				volume: 0.3,
+				speed: NumberInRange(0.8, 1),
+			});
+		}
 
 		if (this.pauseTimer > 0) {
 			this.pauseTimer -= dt;

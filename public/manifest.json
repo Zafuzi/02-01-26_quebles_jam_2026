@@ -154,6 +154,10 @@
 				{
 					"alias": "drop",
 					"src": "sounds/drop.wav"
+				},
+				{
+					"alias": "cluck",
+					"src": "sounds/clucking.m4a"
 				}
 			]
 		}

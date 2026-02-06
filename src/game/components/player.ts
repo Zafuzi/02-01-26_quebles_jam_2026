@@ -1,10 +1,10 @@
 import { Assets, Point, Sprite, Ticker } from "pixi.js";
 import { collideEntities } from "../../engine/Collision.ts";
-import { Clamp, EntitySprite, InputMoveAction, normalize } from "../../engine/Engine.ts";
+import { Clamp, EntitySprite, InputMoveAction, normalize, NumberInRange } from "../../engine/Engine.ts";
 import { envLayer } from "../GLOBALS.ts";
 import type { Entity } from "../../engine/Entity";
 import type { Pickup } from "./pickup.ts";
-import { Sound, sound, SoundLibrary } from "@pixi/sound";
+import { filters, Sound, sound, SoundLibrary } from "@pixi/sound";
 
 export type PlayerInventoryTypes = "apple" | "egg" | "clucker";
 export class Player extends EntitySprite {
@@ -117,7 +117,9 @@ export class Player extends EntitySprite {
 			const count = this.inventoryCounts.get(fileName as PlayerInventoryTypes) ?? 0;
 			if (count <= 0) continue;
 			if (collideEntities(this.collider, config.target.collider)) {
-				this.dropSound.play();
+				this.dropSound.play({
+					speed: NumberInRange(0.8, 1),
+				});
 				this.inventoryCounts.set(fileName as PlayerInventoryTypes, 0);
 				this.inventoryLockTimeout = 50;
 				config.onDrop?.(count);
@@ -145,7 +147,9 @@ export class Player extends EntitySprite {
 	private collect(item: Pickup) {
 		this.inventoryLockTimeout = 50;
 		if (this.addToInventory(item)) {
-			this.pickupSound.play();
+			this.pickupSound.play({
+				speed: NumberInRange(1, 1.1),
+			});
 			this.unregisterPickup(item);
 			item.destroy();
 		}
