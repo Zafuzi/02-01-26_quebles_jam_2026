@@ -19,14 +19,14 @@ export class Player extends EntitySprite {
 		super({
 			fileName: "b_s",
 			position: new Point(250, 250),
-			speed: 12,
+			speed: 8,
 			collide: true,
 			anchor: 0.5,
 			layer: envLayer,
 		});
 		this.inventoryMax.set("apple", 4);
 		this.inventoryMax.set("egg", 6);
-		this.inventoryMax.set("clucker", 1);
+		this.inventoryMax.set("clucker", 2);
 	}
 
 	setMovementDirection = (xy: string) => {

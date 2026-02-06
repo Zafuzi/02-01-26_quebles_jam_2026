@@ -190,7 +190,6 @@ const config: Partial<ApplicationOptions> = {
 		const thump: Sound = Sound.from(Assets.get("apple_drop"));
 		player.setDropTarget("clucker", henHouse, (count) => {
 			Score.cluckers += count;
-			cluckerSpawner.enqueueRespawn(count, 3_000, 9_000);
 			thump.play();
 		});
 		player.setDropTarget("apple", appleBin, (count) => {
