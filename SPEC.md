@@ -1,5 +1,9 @@
 # 02-01-26 Quebles Jam 2026
 
+## Credits:
+
+Music - [Indie Meditations FREE Music Pack](https://yannz41.itch.io/indie-meditations-free-music-pack)
+
 **Themes:**
 
 1. Out of Place
