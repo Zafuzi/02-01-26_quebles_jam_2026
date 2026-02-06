@@ -28,7 +28,6 @@ const config: Partial<ApplicationOptions> = {
 
 (async () => {
 	console.debug("STARTING GAME");
-
 	await initDevtools({ app: Game });
 	await Game.init(config);
 
@@ -37,199 +36,208 @@ const config: Partial<ApplicationOptions> = {
 	await Assets.loadBundle("environment");
 	await Assets.loadBundle("pickups");
 	await Assets.loadBundle("bot");
+	await Assets.loadBundle("music");
 	console.debug("ASSETS LOADED");
 
-	Game.viewport = new Viewport({
-		screenWidth: window.innerWidth,
-		screenHeight: window.innerHeight,
-		worldWidth: Game.screen.width,
-		worldHeight: Game.screen.height,
-		events: Game.renderer.events,
-		ticker: Game.ticker,
-	});
+	setTimeout(async () => {
+		(globalThis as any).loading.classList.add("hid");
+		(globalThis as any).content.classList.remove("hid");
 
-	Game.viewport.sortableChildren = true;
+		setTimeout(() => {
+			(globalThis as any).loading.style.display = "none";
+		}, 400);
 
-	Game.stage.addChild(Game.viewport);
+		Game.viewport = new Viewport({
+			screenWidth: window.innerWidth,
+			screenHeight: window.innerHeight,
+			worldWidth: Game.screen.width,
+			worldHeight: Game.screen.height,
+			events: Game.renderer.events,
+			ticker: Game.ticker,
+		});
 
-	// Warm/cozy full-viewport grade
-	const worldColor = new AdjustmentFilter({
-		gamma: 1.5,
-		saturation: 1,
-		brightness: 0.9,
-		contrast: 1.3,
-	});
-	Game.viewport.filters = [worldColor];
-	Game.viewport.setZoom(0.4);
-	Game.viewport
-		.clampZoom({
-			minScale: 0.4,
-			maxScale: 2,
-		})
-		.wheel({
-			smooth: 100,
-			interrupt: true,
-			reverse: false,
-			lineHeight: 0.1,
-			axis: "all",
-			trackpadPinch: true,
-			wheelZoom: true,
-		})
-		.pinch()
-		.decelerate();
+		Game.viewport.sortableChildren = true;
 
-	Game.viewport.addChild(bgLayer, envLayer);
+		Game.stage.addChild(Game.viewport);
 
-	const background = new Background({
-		fileName: "grass",
-		tileScale: 2,
-		width: Game.viewport.screenWidth,
-		height: Game.viewport.screenHeight,
-		layer: bgLayer,
-	});
+		// Warm/cozy full-viewport grade
+		const worldColor = new AdjustmentFilter({
+			gamma: 1.5,
+			saturation: 1,
+			brightness: 0.9,
+			contrast: 1.3,
+		});
+		Game.viewport.filters = [worldColor];
+		Game.viewport.setZoom(0.4);
+		Game.viewport
+			.clampZoom({
+				minScale: 0.4,
+				maxScale: 2,
+			})
+			.wheel({
+				smooth: 100,
+				interrupt: true,
+				reverse: false,
+				lineHeight: 0.1,
+				axis: "all",
+				trackpadPinch: true,
+				wheelZoom: true,
+			})
+			.pinch()
+			.decelerate();
 
-	background.onViewportMoved(Game.viewport);
-	Game.viewport.addChild(background);
+		Game.viewport.addChild(bgLayer, envLayer);
 
-	Game.viewport.on("moved", () => {
+		const background = new Background({
+			fileName: "grass",
+			tileScale: 2,
+			width: Game.viewport.screenWidth,
+			height: Game.viewport.screenHeight,
+			layer: bgLayer,
+		});
+
 		background.onViewportMoved(Game.viewport);
-	});
+		Game.viewport.addChild(background);
 
-	const player = new Player();
-	Game.viewport.addChild(player);
+		Game.viewport.on("moved", () => {
+			background.onViewportMoved(Game.viewport);
+		});
 
-	const appleBin = new Bin({
-		fileName: "barrel_apples",
-		position: new Point(800, 0),
-		anchor: 0.5,
-		collide: true,
-		layer: envLayer,
-	});
+		const player = new Player();
+		Game.viewport.addChild(player);
 
-	const henHouse = new Bin({
-		fileName: "hen_house",
-		position: new Point(-200, -200),
-		anchor: 0.5,
-		layer: envLayer,
-	});
+		const appleBin = new Bin({
+			fileName: "barrel_apples",
+			position: new Point(800, 0),
+			anchor: 0.5,
+			collide: true,
+			layer: envLayer,
+		});
 
-	const eggBin = new Bin({
-		fileName: "barrel_eggs",
-		position: new Point(600, 0),
-		anchor: 0.5,
-		layer: envLayer,
-	});
+		const henHouse = new Bin({
+			fileName: "hen_house",
+			position: new Point(-200, -200),
+			anchor: 0.5,
+			layer: envLayer,
+		});
 
-	eggBin.collider = {
-		body: {
-			width: eggBin.width - 100,
-			height: eggBin.height - 100,
-		},
-		position: eggBin.position,
-		scale: 1,
-	};
+		const eggBin = new Bin({
+			fileName: "barrel_eggs",
+			position: new Point(600, 0),
+			anchor: 0.5,
+			layer: envLayer,
+		});
 
-	const treeSpawner = new Spawner<Tree>({
-		spawnPoint: () => ({
-			x: 0,
-			y: -200,
-		}),
-		factory: (position) =>
-			new Tree({
-				position,
-				layer: envLayer,
-				dropTarget: appleBin,
+		eggBin.collider = {
+			body: {
+				width: eggBin.width - 100,
+				height: eggBin.height - 100,
+			},
+			position: eggBin.position,
+			scale: 1,
+		};
+
+		const treeSpawner = new Spawner<Tree>({
+			spawnPoint: () => ({
+				x: 0,
+				y: -200,
 			}),
-	});
+			factory: (position) =>
+				new Tree({
+					position,
+					layer: envLayer,
+					dropTarget: appleBin,
+				}),
+		});
 
-	const cluckerSpawner = new Spawner<Clucker>({
-		pickupCooldownMs: 500,
-		spawn_rate: 2_000,
-		max: 2,
-		spawnPoint: () => LocationAround(henHouse.position, 100, 800),
-		factory: (position) => {
-			const clucker = new Clucker({
-				position,
-				layer: envLayer,
-				dropTarget: henHouse,
-				spawnerDropTarget: eggBin,
-			});
-			player.registerPickup(clucker);
+		const cluckerSpawner = new Spawner<Clucker>({
+			pickupCooldownMs: 500,
+			spawn_rate: 2_000,
+			max: 2,
+			spawnPoint: () => LocationAround(henHouse.position, 100, 800),
+			factory: (position) => {
+				const clucker = new Clucker({
+					position,
+					layer: envLayer,
+					dropTarget: henHouse,
+					spawnerDropTarget: eggBin,
+				});
+				player.registerPickup(clucker);
 
-			return clucker;
-		},
-	});
+				return clucker;
+			},
+		});
 
-	player.setDropTarget("clucker", henHouse, (count) => {
-		Score.cluckers += count;
-		cluckerSpawner.enqueueRespawn(count, 3_000, 9_000);
-	});
-	player.setDropTarget("apple", appleBin, (count) => {
-		Score.apples += count;
-	});
-	player.setDropTarget("egg", eggBin, (count) => {
-		Score.eggs += count;
-	});
+		player.setDropTarget("clucker", henHouse, (count) => {
+			Score.cluckers += count;
+			cluckerSpawner.enqueueRespawn(count, 3_000, 9_000);
+		});
+		player.setDropTarget("apple", appleBin, (count) => {
+			Score.apples += count;
+		});
+		player.setDropTarget("egg", eggBin, (count) => {
+			Score.eggs += count;
+		});
 
-	Game.viewport.addChild(henHouse, appleBin, eggBin);
+		Game.viewport.addChild(henHouse, appleBin, eggBin);
 
-	let isWon = false;
-	const msg = (globalThis as any).msg;
-	const dbgState = (globalThis as any).dbg_state;
-	const scoreApples = (globalThis as any).score_apples;
-	const scoreEggs = (globalThis as any).score_eggs;
+		let isWon = false;
+		const msg = (globalThis as any).msg;
+		const dbgState = (globalThis as any).dbg_state;
+		const scoreApples = (globalThis as any).score_apples;
+		const scoreEggs = (globalThis as any).score_eggs;
 
-	const trees = treeSpawner.spawns;
-	const cluckers = cluckerSpawner.spawns;
+		const trees = treeSpawner.spawns;
+		const cluckers = cluckerSpawner.spawns;
 
-	const registerAppleSpawner = (tree: Tree) => {
-		tree.appleSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
-		tree.appleSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
-	};
+		const registerAppleSpawner = (tree: Tree) => {
+			tree.appleSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
+			tree.appleSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
+		};
 
-	const registerEggSpawner = (clucker: Clucker) => {
-		clucker.eggSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
-		clucker.eggSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
-	};
+		const registerEggSpawner = (clucker: Clucker) => {
+			clucker.eggSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
+			clucker.eggSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
+		};
 
-	treeSpawner.onSpawn = (tree) => registerAppleSpawner(tree as Tree);
-	cluckerSpawner.onSpawn = (clucker) => registerEggSpawner(clucker as Clucker);
+		treeSpawner.onSpawn = (tree) => registerAppleSpawner(tree as Tree);
+		cluckerSpawner.onSpawn = (clucker) => registerEggSpawner(clucker as Clucker);
 
-	trees.forEach((tree) => registerAppleSpawner(tree as Tree));
-	cluckers.forEach((clucker) => registerEggSpawner(clucker as Clucker));
+		trees.forEach((tree) => registerAppleSpawner(tree as Tree));
+		cluckers.forEach((clucker) => registerEggSpawner(clucker as Clucker));
 
-	// -- KEEP HERE --
-	cluckerSpawner.spawnMany(2);
-	treeSpawner.spawnManyAt(
-		Spawner.gridPoints({
-			origin: new Point(-400, 600),
-			cols: 3,
-			rows: 3,
-			spacingX: 600,
-			spacingY: 600,
-			jitterX: 200,
-			jitterY: 200,
-			dirX: 1,
-			dirY: 1,
-		}),
-	);
-	// -- KEEP HERE --
+		// -- KEEP HERE --
+		cluckerSpawner.spawnMany(2);
+		treeSpawner.spawnManyAt(
+			Spawner.gridPoints({
+				origin: new Point(-400, 600),
+				cols: 3,
+				rows: 3,
+				spacingX: 600,
+				spacingY: 600,
+				jitterX: 200,
+				jitterY: 200,
+				dirX: 1,
+				dirY: 1,
+			}),
+		);
+		// -- KEEP HERE --
 
-	Game.ticker.add(() => {
-		if (!isWon && Score.apples >= 10 && Score.eggs >= 10) {
-			isWon = true;
+		Game.ticker.add(() => {
+			if (!isWon && Score.apples >= 10 && Score.eggs >= 10) {
+				isWon = true;
 
-			msg.classList.remove("hid");
-			msg.innerHTML = "<h1 class='blue'>You Win!</h1>";
-		}
+				msg.classList.remove("hid");
+				msg.innerHTML = "<h1 class='blue'>You Win!</h1>";
+			}
 
-		const apples = player.inventoryCounts.get("apple") ?? 0;
-		const eggs = player.inventoryCounts.get("egg") ?? 0;
-		const maxApples = player.inventoryMax.get("apple") ?? 0;
-		const maxEggs = player.inventoryMax.get("egg") ?? 0;
-		const inventorySummary = player.getInventorySummary() || "empty";
+			const apples = player.inventoryCounts.get("apple") ?? 0;
+			const eggs = player.inventoryCounts.get("egg") ?? 0;
+			const maxApples = player.inventoryMax.get("apple") ?? 0;
+			const maxEggs = player.inventoryMax.get("egg") ?? 0;
+			const inventorySummary = player.getInventorySummary() || "empty";
 
-		dbgState.innerHTML = `
+			dbgState.innerHTML = `
 			<h2> State </h2>
 			<div>
 				<h3> Player </h3>
@@ -240,36 +248,37 @@ const config: Partial<ApplicationOptions> = {
 			</div>
 		`;
 
-		scoreApples.innerHTML = Score.apples;
-		scoreEggs.innerHTML = Score.eggs;
+			scoreApples.innerHTML = Score.apples;
+			scoreEggs.innerHTML = Score.eggs;
 
-		InputMoveAction.update();
-		PlayerInteract.update();
-		envLayer.sortChildren();
-	});
+			InputMoveAction.update();
+			PlayerInteract.update();
+			envLayer.sortChildren();
+		});
 
-	Game.viewport.follow(player, {
-		speed: 1,
-		acceleration: 0.5,
-		radius: 10,
-	});
+		Game.viewport.follow(player, {
+			speed: 1,
+			acceleration: 0.5,
+			radius: 10,
+		});
 
-	let resizeDebounce: number;
-	window.addEventListener("resize", () => {
-		if (resizeDebounce) {
-			clearTimeout(resizeDebounce);
-		}
+		let resizeDebounce: number;
+		window.addEventListener("resize", () => {
+			if (resizeDebounce) {
+				clearTimeout(resizeDebounce);
+			}
 
-		resizeDebounce = setTimeout(() => {
-			Game.renderer.resize(window.innerWidth, window.innerHeight);
+			resizeDebounce = setTimeout(() => {
+				Game.renderer.resize(window.innerWidth, window.innerHeight);
 
-			Game.viewport.screenWidth = Game.screen.width;
-			Game.viewport.screenHeight = Game.screen.height;
-			Game.viewport.resize(Game.screen.width, Game.screen.height, Game.screen.width, Game.screen.height);
-			background.resize({
-				width: Game.screen.width,
-				height: Game.screen.height,
-			});
-		}, 300);
-	});
+				Game.viewport.screenWidth = Game.screen.width;
+				Game.viewport.screenHeight = Game.screen.height;
+				Game.viewport.resize(Game.screen.width, Game.screen.height, Game.screen.width, Game.screen.height);
+				background.resize({
+					width: Game.screen.width,
+					height: Game.screen.height,
+				});
+			}, 300);
+		});
+	}, 3_000);
 })();

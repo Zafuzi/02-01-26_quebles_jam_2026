@@ -118,6 +118,31 @@
 					"src": "pickups/egg.png"
 				}
 			]
+		},
+		{
+			"name": "music",
+			"assets": [
+				{
+					"alias": "music_000",
+					"src": "music/lvl 0 (the tutorial).ogg"
+				},
+				{
+					"alias": "music_001",
+					"src": "music/lvl 1 (the royal palace).ogg"
+				},
+				{
+					"alias": "music_002",
+					"src": "music/lvl 2 (the village).ogg"
+				},
+				{
+					"alias": "music_003",
+					"src": "music/lvl 3 (the grassland).ogg"
+				},
+				{
+					"alias": "music_004",
+					"src": "music/lvl 4 (the desert).ogg"
+				}
+			]
 		}
 	]
 }
