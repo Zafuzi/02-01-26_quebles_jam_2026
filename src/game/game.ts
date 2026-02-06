@@ -37,15 +37,20 @@ const config: Partial<ApplicationOptions> = {
 	await Assets.loadBundle("environment");
 	await Assets.loadBundle("pickups");
 	await Assets.loadBundle("bot");
-	const music = new MusicPlayer(await Assets.loadBundle("music"));
+	const music = new MusicPlayer(await Assets.loadBundle("music"), {
+		trackOrder: ["music_001", "music_000", "music_002", "music_003", "music_004"],
+		fadeInMs: 1000,
+		fadeOutMs: 800,
+		crossfadeMs: 1200,
+		loopPlaylist: true,
+	});
 	console.debug("ASSETS LOADED");
 
 	setTimeout(async () => {
-		music.volumeAll = 0.5;
-		music.play("music_000");
-
 		(globalThis as any).loading.classList.add("hid");
 		(globalThis as any).content.classList.remove("hid");
+
+		music.next({ crossfadeMs: 1500 });
 
 		setTimeout(() => {
 			(globalThis as any).loading.style.display = "none";
