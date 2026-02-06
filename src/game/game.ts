@@ -11,6 +11,7 @@ import { Pickup } from "./components/pickup.ts";
 import { Player } from "./components/player.ts";
 import { Spawner } from "./components/spawner";
 import { Tree } from "./components/tree.ts";
+import { MusicPlayer } from "../engine/MusicPlayer.ts";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -36,16 +37,23 @@ const config: Partial<ApplicationOptions> = {
 	await Assets.loadBundle("environment");
 	await Assets.loadBundle("pickups");
 	await Assets.loadBundle("bot");
-	await Assets.loadBundle("music");
+	const music = new MusicPlayer(await Assets.loadBundle("music"));
 	console.debug("ASSETS LOADED");
 
 	setTimeout(async () => {
+		music.volumeAll = 0.5;
+		music.play("music_000");
+
 		(globalThis as any).loading.classList.add("hid");
 		(globalThis as any).content.classList.remove("hid");
 
 		setTimeout(() => {
 			(globalThis as any).loading.style.display = "none";
 		}, 400);
+
+		setTimeout(() => {
+			(globalThis as any).msg.classList.add("hid");
+		}, 10_000);
 
 		Game.viewport = new Viewport({
 			screenWidth: window.innerWidth,
