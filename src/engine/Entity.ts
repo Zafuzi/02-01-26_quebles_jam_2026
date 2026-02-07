@@ -254,11 +254,17 @@ export class EntitySprite extends Entity {
 	}
 }
 
+export type EntityTilingSpriteOptions = EntitySpriteOptions & {
+	width?: number;
+	height?: number;
+	tileScale?: number;
+};
+
 export class EntityTilingSprite extends Entity {
 	public sprite: TilingSprite = new TilingSprite();
 	public fileName: string;
 
-	constructor(options: EntityOptions & EntitySpriteOptions) {
+	constructor(options: EntityTilingSpriteOptions) {
 		super(options);
 
 		this.fileName = options.fileName;

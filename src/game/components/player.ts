@@ -23,6 +23,7 @@ export class Player extends EntitySprite {
 			collide: true,
 			anchor: 0.5,
 			layer: envLayer,
+			debug: true,
 		});
 		this.inventoryMax.set("apple", 4);
 		this.inventoryMax.set("egg", 6);

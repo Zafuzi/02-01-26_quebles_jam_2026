@@ -1,11 +1,6 @@
 import type { Viewport } from "pixi-viewport";
-import { EntityTilingSprite, type EntitySpriteOptions } from "../../engine/Engine.ts";
+import { EntityTilingSprite, type EntitySpriteOptions, type EntityTilingSpriteOptions } from "../../engine/Engine.ts";
 
-export type EntityTilingSpriteOptions = {
-	width?: number;
-	height?: number;
-	tileScale?: number;
-};
 export class Background extends EntityTilingSprite {
 	public tileWidth: number = 1;
 	public tileHeight: number = 1;

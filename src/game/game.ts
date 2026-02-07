@@ -1,7 +1,7 @@
 import { initDevtools } from "@pixi/devtools";
 import { AdjustmentFilter } from "pixi-filters";
 import { Viewport } from "pixi-viewport";
-import { Assets, Point, type ApplicationOptions } from "pixi.js";
+import { Assets, DEG_TO_RAD, Point, type ApplicationOptions } from "pixi.js";
 import { Game, InputMoveAction, LocationAround, PlayerInteract } from "../engine/Engine.ts";
 import { MusicPlayer } from "../engine/MusicPlayer.ts";
 import { bgLayer, envLayer, Score } from "./GLOBALS.ts";
@@ -13,6 +13,7 @@ import { Player } from "./components/player.ts";
 import { Spawner } from "./components/spawner";
 import { Tree } from "./components/tree.ts";
 import { Sound } from "@pixi/sound";
+import { Wall } from "./components/wall.ts";
 
 const config: Partial<ApplicationOptions> = {
 	roundPixels: false,
@@ -170,7 +171,7 @@ const config: Partial<ApplicationOptions> = {
 			pickupCooldownMs: 500,
 			spawn_rate: 500,
 			max: 8,
-			spawnPoint: () => LocationAround(henHouse.position, 100, 800),
+			spawnPoint: () => LocationAround(henHouse.position, 20, 100),
 			factory: (position) => {
 				const clucker = new Clucker({
 					position,
@@ -212,12 +213,71 @@ const config: Partial<ApplicationOptions> = {
 		const trees = treeSpawner.spawns;
 		const cluckers = cluckerSpawner.spawns;
 
+		// --- WALLS ---
+		const hWalls = new Wall({
+			fileName: "fence_horizontal",
+			position: new Point(-100, 0),
+			collide: true,
+			layer: envLayer,
+			tileWidth: 64,
+			tileHeight: 64,
+			anchor: new Point(0.5, 0.5),
+		});
+
+		hWalls.sprite.width = 640;
+		hWalls.registerCollider(player);
+
+		const hWalls2 = new Wall({
+			fileName: "fence_horizontal",
+			position: new Point(-100, -640),
+			collide: true,
+			layer: envLayer,
+			tileWidth: 64,
+			tileHeight: 64,
+			anchor: new Point(0.5, 0.5),
+		});
+
+		hWalls2.sprite.width = 640;
+		hWalls2.registerCollider(player);
+
+		const vWalls = new Wall({
+			fileName: "fence_vertical",
+			position: new Point(-400, -320),
+			collide: true,
+			layer: envLayer,
+			tileWidth: 64,
+			tileHeight: 64,
+			anchor: new Point(0.5, 0.5),
+		});
+
+		vWalls.sprite.height = 640;
+		vWalls.registerCollider(player);
+
+		const vWalls2 = new Wall({
+			fileName: "fence_vertical",
+			position: new Point(220, -600),
+			collide: true,
+			layer: envLayer,
+			tileWidth: 64,
+			tileHeight: 64,
+			anchor: new Point(0.5, 0.5),
+		});
+
+		vWalls2.sprite.height = 300;
+		vWalls2.registerCollider(player);
+
+		Game.viewport.addChild(hWalls, hWalls2, vWalls, vWalls2);
+		// --- END WALLS ---
+
 		const registerAppleSpawner = (tree: Tree) => {
 			tree.appleSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
-			tree.appleSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
+			tree.appleSpawner.spawns.forEach((p) => {
+				player.registerPickup(p as Pickup);
+			});
 		};
 
 		const registerEggSpawner = (clucker: Clucker) => {
+			[hWalls, hWalls2, vWalls, vWalls2].forEach((wall) => wall.registerCollider(clucker));
 			clucker.eggSpawner.onSpawn = (item) => player.registerPickup(item as Pickup);
 			clucker.eggSpawner.spawns.forEach((p) => player.registerPickup(p as Pickup));
 		};
